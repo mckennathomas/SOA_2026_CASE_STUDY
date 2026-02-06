@@ -1,0 +1,314 @@
+---
+title: "A File By the Green One"
+format: html
+author: "Green"
+---
+
+Here's the website link [here]("https://www.soa.org/research/opportunities/2026-student-research-case-study-challenge/")
+
+Here's the data dictionary [here]("chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.soa.org/48e7c8/globalassets/assets/files/research/opportunities/2026/student-research-case-study/srcsc-2026-data.pdf")
+
+```{r, include=FALSE}
+library(openxlsx, quietly = TRUE, warn.conflicts = FALSE)
+library(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
+library(knitr, quietly = TRUE, warn.conflicts = FALSE)
+
+wc_freq <- read.xlsx("srcsc-2026-claims-workers-comp.xlsx",sheet=1)
+wc_sev <- read.xlsx("srcsc-2026-claims-workers-comp.xlsx",sheet=2)
+
+bi_freq <- read.xlsx("srcsc-2026-claims-business-interruption.xlsx",sheet=1)
+bi_sev <- read.xlsx("srcsc-2026-claims-business-interruption.xlsx",sheet=2)
+
+ef_freq <- read.xlsx("srcsc-2026-claims-equipment-failure.xlsx",sheet=1)
+ef_sev <- read.xlsx("srcsc-2026-claims-equipment-failure.xlsx",sheet=2)
+
+cgo_freq <- read.xlsx("srcsc-2026-claims-cargo.xlsx",sheet=1)
+cgo_sev <- read.xlsx("srcsc-2026-claims-cargo.xlsx",sheet=2)
+```
+
+Here's some filtering of the data based on the data dictionary guidlines:
+```{r}
+#| code-fold: true
+wc_freq$solar_system <- gsub("_.*","",wc_freq$solar_system)
+wc_sev$solar_system <- gsub("_.*","",wc_sev$solar_system)
+bi_freq$solar_system <- gsub("_.*","",bi_freq$solar_system)
+bi_sev$solar_system <- gsub("_.*","",bi_sev$solar_system)
+ef_freq$solar_system <- gsub("_.*","",ef_freq$solar_system)
+ef_sev$solar_system <- gsub("_.*","",ef_sev$solar_system)
+
+bi_freq <- bi_freq %>% 
+  filter(production_load <=1,
+         production_load >=0,
+         energy_backup_score %in% c(1,2,3,4,5),
+         supply_chain_index <=1,
+         supply_chain_index >=0,
+         avg_crew_exp <=30,
+         avg_crew_exp >= 1,
+         maintenance_freq <= 6,
+         maintenance_freq >= 0,
+         safety_compliance %in% c(1,2,3,4,5),
+         exposure <= 1,
+         exposure >=0,
+         claim_count <= 4,
+         claim_count >=0)
+
+bi_sev <- bi_sev %>% 
+  filter(production_load <=1,
+         production_load >=0,
+         energy_backup_score %in% c(1,2,3,4,5),
+         safety_compliance %in% c(1,2,3,4,5),
+         exposure <= 1,
+         exposure >=0,
+         claim_amount <= 1500000,
+         claim_amount >= 25000)
+
+ef_freq <- ef_freq %>% 
+  filter(equipment_age >=0,
+         equipment_age <=10,
+         maintenance_int >= 100,
+         maintenance_int <= 5000,
+         usage_int <= 24,
+         usage_int >=0,
+         exposure >= 0,
+         exposure <= 1,
+         claim_count <= 3,
+         claim_count >= 0)
+
+ef_sev <- ef_sev %>% 
+  filter(equipment_age >=0,
+         equipment_age <=10,
+         maintenance_int >= 100,
+         maintenance_int <= 5000,
+         usage_int <= 24,
+         usage_int >=0,
+         exposure >= 0,
+         exposure <= 1,
+         claim_amount <= 790000,
+         claim_amount >= 10000)
+
+wc_freq <- wc_freq %>% 
+  filter(experience_yrs >= 0,
+         experience_yrs <= 40,
+         accident_history_flag %in% c(0,1),
+         psych_stress_index %in% c(1,2,3,4,5),
+         hours_per_week %in% c(20,25,30,35,40),
+         supervision_level <=1,
+         supervision_level >=0,
+         gravity_level <=1.5,
+         gravity_level >=0.75,
+         safety_training_index %in% c(1,2,3,4,5),
+         protective_gear_quality %in% c(1,2,3,4,5),
+         base_salary <= 140000,
+         base_salary >= 15000,
+         exposure >= 0,
+         exposure <= 1,
+         claim_count <= 2,
+         claim_count >=0)
+
+wc_sev <- wc_sev %>% 
+  filter(experience_yrs >= 0,
+         experience_yrs <= 40,
+         accident_history_flag %in% c(0,1),
+         psych_stress_index %in% c(1,2,3,4,5),
+         hours_per_week %in% c(20,25,30,35,40),
+         supervision_level <=1,
+         supervision_level >=0,
+         gravity_level <=1.5,
+         gravity_level >=0.75,
+         safety_training_index %in% c(1,2,3,4,5),
+         protective_gear_quality %in% c(1,2,3,4,5),
+         base_salary <= 140000,
+         base_salary >= 15000,
+         exposure >= 0,
+         exposure <= 1,
+         claim_length <= 1000,
+         claim_length >= 3,
+         claim_amount <= 200000,
+         claim_amount >= 0
+         )
+
+cgo_freq <- cgo_freq %>% 
+  filter(cargo_value >= 50000,
+         cargo_value <= 680000000,
+         weight <= 250000,
+         weight >= 1500,
+         route_risk %in% c(1,2,3,4,5),
+         distance <= 100,
+         distance >= 1,
+         transit_duration >=1,
+         transit_duration <= 60,
+         pilot_experience <= 30,
+         pilot_experience >= 1,
+         vessel_age <= 50,
+         vessel_age >= 1,
+         solar_radiation <= 1,
+         solar_radiation >=0,
+         debris_density >= 0,
+         debris_density <= 1,
+         exposure >= 0,
+         exposure <= 1,
+         claim_count <= 5,
+         claim_count >=0)
+
+cgo_sev <- cgo_sev %>% 
+  filter(cargo_value >= 50000,
+         cargo_value <= 680000000,
+         weight <= 250000,
+         weight >= 1500,
+         route_risk %in% c(1,2,3,4,5),
+         distance <= 100,
+         distance >= 1,
+         transit_duration >=1,
+         transit_duration <= 60,
+         pilot_experience <= 30,
+         pilot_experience >= 1,
+         vessel_age <= 50,
+         vessel_age >= 1,
+         solar_radiation <= 1,
+         solar_radiation >=0,
+         debris_density >= 0,
+         debris_density <= 1,
+         exposure >= 0,
+         exposure <= 1,
+         claim_amount <= 700000000,
+         claim_amount >=30000)
+```
+
+
+
+
+## Workers Comp Plots
+
+```{r}
+#| code-fold: true
+ggplot(data=wc_sev, aes(x=claim_amount)) +
+  geom_histogram(bins = 45,color='gray',fill='steelblue') +
+  labs(title="Workers Comp Claim Amount Distribution",
+       x="Claim Amount")+
+  theme_minimal()
+```
+
+```{r}
+#| code-fold: true
+ggplot(wc_freq,aes(x=factor(claim_count),fill=factor(psych_stress_index))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Workers Comp Claim Count Distribution with Psych Stress Index",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Stress Index")
+
+ggplot(wc_freq,aes(x=factor(claim_count),fill=factor(hours_per_week))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Workers Comp Claim Count Distribution with Hours Per Week",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Hours Per Week")
+
+ggplot(wc_freq,aes(x=factor(claim_count),fill=factor(protective_gear_quality))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Workers Comp Claim Count Distribution with Protective Gear Quality",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Protective Gear Quality")
+
+ggplot(wc_freq,aes(x=factor(claim_count),fill=factor(accident_history_flag))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Workers Comp Claim Count Distribution with Accident History Flag",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Accident History Flag")
+
+ggplot(wc_freq,aes(x=factor(claim_count),fill=factor(safety_training_index))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Workers Comp Claim Count Distribution with Safety Training Index",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Safety Training Index")
+
+ggplot(wc_freq,aes(x=factor(claim_count),fill=factor(solar_system))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Workers Comp Claim Count Distribution with Solar System",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Solar System")
+```
+
+## Business Interrruptions Plots
+
+```{r}
+#| code-fold: true
+ggplot(data=bi_sev, aes(x=claim_amount)) +
+  geom_histogram(bins = 45,color='gray',fill='steelblue') +
+  labs(title="Business Interruptions Claim Amount Distribution",
+       x="Claim Amount")+
+  theme_minimal()
+
+ggplot(bi_freq,aes(x=factor(claim_count),fill=factor(solar_system))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Business Interruptions Claim Count Distribution with Solar System",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Solar System")
+
+ggplot(bi_freq,aes(x=factor(claim_count),fill=factor(energy_backup_score))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Business Interruptions Claim Count Distribution with Energy Backup Score",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Energy Backup Score")
+
+ggplot(bi_freq,aes(x=factor(claim_count),fill=factor(safety_compliance))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Business Interruptions Claim Count Distribution with Safety Compliance",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Safety Compliance")
+```
+
+## Equipment Failure Plots
+
+```{r}
+#| code-fold: true
+ggplot(data=ef_sev, aes(x=claim_amount)) +
+  geom_histogram(bins = 45,color='gray',fill='steelblue') +
+  labs(title="Equipment Failure Claim Amount Distribution",
+       x="Claim Amount")+
+  theme_minimal()
+
+ggplot(ef_freq,aes(x=factor(claim_count),fill=factor(solar_system))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Business Interruptions Claim Count Distribution with Solar System",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Solar System")
+```
+
+## Cargo Loss Plots
+
+```{r}
+#| code-fold: true
+ggplot(data=cgo_sev, aes(x=claim_amount)) +
+  geom_histogram(bins = 45,color='gray',fill='steelblue') +
+  labs(title="Cargo Loss Claim Amount Distribution",
+       x="Claim Amount")+
+  theme_minimal()
+
+ggplot(cgo_freq,aes(x=factor(claim_count),fill=factor(route_risk))) + 
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title="Cargo Loss Claim Count Distribution with Route Risk",
+       x="Claim Count",
+       y="Frequency of Claims",
+       fill="Route Risk")
+```
+
