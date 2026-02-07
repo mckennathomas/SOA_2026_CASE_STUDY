@@ -1,0 +1,21 @@
+---
+title: "EQUITMENT_FAILURE"
+format: html
+---
+
+```{r}
+
+library(readxl)
+
+eq_claims <- read_excel(file.choose())
+View(eq_claims)
+
+path <- file.choose()
+excel_sheets(path)
+
+freq_eq <- read_excel(path, sheet = 1)
+sev_eq <- read_excel(path, sheet = 2)
+
+
+```
+

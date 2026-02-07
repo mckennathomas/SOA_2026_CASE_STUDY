@@ -1,0 +1,20 @@
+---
+title: "BUSINESS_INTERRUPTION"
+format: html
+---
+
+```{r}
+
+library(readxl)
+
+business_claims <- read_excel(file.choose())
+View(business_claims)
+
+path <- file.choose()
+excel_sheets(path)
+
+freq_buis <- read_excel(path, sheet = 1)
+sev_buis <- read_excel(path, sheet = 2)
+
+
+```
