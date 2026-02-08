@@ -8,23 +8,22 @@ editor_options:
 ## Reading in the data obviiiii
 ```{r}
 
-pacman::p_load(tidyverse, readxl, ggrepel, directlabels, readr, rio, knitr, pander, downloader, dplyr, plotly, ggplot2, ggthemes, haven, ggdist, janitor, MASS)
+pacman::p_load(tidyverse, readxl, ggrepel, directlabels, readr, rio, knitr, pander, downloader, dplyr, plotly, ggplot2, ggthemes, haven, ggdist, janitor, MASS, here)
 
-cargo_claims <- read_excel(file.choose())
+path <- "srcsc-2026-claims-cargo.xlsx"
 
-path <- file.choose()
-excel_sheets(path)
-
-cargo_freq <- read_excel(path, sheet = 1)
-cargo_sev <- read_excel(path, sheet = 2)
+cargo_freq <- read_excel(path, sheet = "freq")
+cargo_sev <- read_excel(path, sheet = "sev")
 
 
 ```
-## Combing Rows and Filtering freq_cargo
+
+## Combing Rows and Filtering cargo_freq
 
 ```{r}
 
 cargo_pol <- cargo_freq %>%
+  filter(!is.na(exposure), !is.na(claim_count), exposure > 0) %>%
   group_by(policy_id) %>%
   summarise(
     exposure_pol = sum(exposure, na.rm = TRUE),
@@ -39,6 +38,8 @@ cargo_pol <- cargo_freq %>%
 
 ```{r}
 
+# You will either use Poisson or Negative Binomial. Try Poisson first.
+
 lambda_hat <- sum(cargo_pol$claims_pol) / sum(cargo_pol$exposure_pol)
 lambda_hat
 
@@ -47,13 +48,10 @@ lambda_hat
 mean_claims <- mean(cargo_pol$claims_pol)
 var_claims  <- var(cargo_pol$claims_pol)
 
-mean_claims
-var_claims
-
 dispersion_ratio <- var_claims / mean_claims
-dispersion_ratio
+c(mean_claims = mean_claims, var_claims = var_claims, dispersion_ratio = dispersion_ratio)
 
-## this ratio shows how much the actual variance exceeds Poisson Variance. For dispersion ratios if its 0.8 - 1.3, then Poisson is a good bet. If it's anything greater than that then that's where your 423, 424 skills come in. Try to fit and find the appropriate distribution. After trial and error I decided to use Negative Binomial for the behavior of cargo claims. p.s making histograms will really help you assign a distribution 
+## this dispersion ratio shows how much the actual variance exceeds Poisson Variance. For dispersion ratios if its 0.8 - 1.2, then Poisson is a good bet. If it's anything greater then Negative Binomial is your next best bet! 
 
 
 ```
@@ -62,100 +60,113 @@ dispersion_ratio
 
 ```{r}
 
-## In this chunk I'm just trying to get a simple summary of the size of my claims on average. I also cleaned the data up to get rid of any silly entries like any negative claim amounts. 
+## In this chunk I'm cleaning the data a bit, making sure I only use positive entries. For severity modeling in actuarial science typically you will use either gamma or log normal. I will start with log normal and then later compare it to Gamma using the MOM. 
 
-cargo_sev_clean <- cargo_sev %>%
-  mutate(claim_amount = as.numeric(claim_amount)) %>%
-  filter(is.finite(claim_amount), claim_amount > 0)
+x <- cargo_sev$claim_amount
+x <- as.numeric(x)
+x <- x[is.finite(x) & !is.na(x) & x > 0]
 
-summary(cargo_sev_clean$claim_amount)
+# Finding my distribution parameters
 
-## I'm now trying to fit the best fit distribution for severity. Looking at some histograms I found that the log-normal histogram looks BEAUTIFULLY bell shaped so I'll go ahead and try and fit it quantitatively to try and back up the chart.
+mu    <- mean(log(x))
+sigma <- sd(log(x))
 
-hist(log(cargo_sev_clean$claim_amount),
-     breaks = 50,
-     main = "Log of Cargo Claim Amounts",
-     xlab = "log(Claim Amount)")
+mean_sev   <- exp(mu + 0.5*sigma^2)
+median_sev <- exp(mu)
 
-## Log - normal is looking like a strong option I'm going to find my MLE parameter estimates. 
-
-x <- cargo_sev_clean$claim_amount
-meanlog_hat <- mean(log(x))
-sdlog_hat   <- sd(log(x))
-
-meanlog_hat
-sdlog_hat
-
-## This is the mew(i hoped this is spelled right) and sigma for my log normal distribution!!!!
-
-mu <- 14.57531
-sigma <- 1.196746
-
-mean_sev <- exp(mu + 0.5*sigma^2)
-mean_sev # this number means the expected cargo claim severity is about $4.37 mil per claim. lowkey a lot of money
-
-# this is kinda extra but right now I just wanted to see what the numbers are like for the 99 and 95th percentiles
-
-q95 <- qlnorm(0.95, meanlog = mu, sdlog = sigma)
-q99 <- qlnorm(0.99, meanlog = mu, sdlog = sigma)
-
-q95
-q99
-
-quantile(x, probs = c(0.90, 0.95, 0.99))
-mean(x)
-
-
+c(meanlog = mu, sdlog = sigma, mean_severity = mean_sev, median_severity = median_sev)
 
 ```
 
-
+## Visuals
 ```{r}
 
-## This is an example of how I found the best fitted distribution I used the MOM method with lof normal and Gamma as you'll see in the coded below
+# A histogram of my log normal.
 
-x <- cargo_sev_clean$claim_amount
-x <- x[is.finite(x) & x > 0]
-
-#  this is the Method-of-moments estimates for Gamma, i've never done MOM in R before so i had to ask chat for the code
-m <- mean(x)
-v <- var(x)
-
-shape_hat <- m^2 / v
-rate_hat  <- m / v
-
-loglik_gam <- sum(dgamma(x, shape = shape_hat, rate = rate_hat, log = TRUE))
-
-aic_gam <- 2*2 - 2*loglik_gam
-
-aic_gam
-
-loglik_logn <- sum(dlnorm(x, meanlog = mu, sdlog = sigma, log = TRUE))
-aic_logn <- 2*2 - 2*loglik_logn   
-
-aic_logn
-
-## I also asked chat to interpret the MOM results for the gamma and log normal to see which one fits best and chat said and I quote "The Lognormal model fits the cargo claim severity data vastly better than the Gamma model." so we have found the best model for severity!!!!
-
-```
-
-```{r}
-
-# This is optional, but I made a cutie plot just for reference later, its also something nice to put into the appendix of whatever we turn in
+hist(
+  log(x),
+  breaks = 50,
+  main = "Log of Cargo Claim Amounts",
+  xlab = "log(Claim Amount)"
+)
 
 qqplot(
-  qlnorm(ppoints(length(x)),
-         meanlog = fit_logn$estimate["meanlog"],
-         sdlog   = fit_logn$estimate["sdlog"]),
+  qlnorm(ppoints(length(x)), meanlog = mu, sdlog = sigma),
   sort(x),
   main = "QQ Plot – Cargo Severity (Lognormal)",
   xlab = "Theoretical Quantiles",
   ylab = "Observed Claim Amounts"
 )
-abline(0,1,col="red",lwd=2)
-
+abline(0, 1, col = "red", lwd = 2)
 
 ```
+
+## Comapring Distribution to Gamma
+
+```{r}
+
+# Just so you know AIC is a model comparison test that uses the likelihood of the fitted model you chose and ranks the models.
+
+# Lognormal log-likelihood + AIC 
+loglik_logn <- sum(dlnorm(x, meanlog = mu, sdlog = sigma, log = TRUE))
+aic_logn <- 2*2 - 2*loglik_logn
+
+# Gamma MOM estimates + log-likelihood + AIC 
+m <- mean(x); v <- var(x)
+shape_hat <- m^2 / v
+rate_hat  <- m / v
+
+loglik_gam <- sum(dgamma(x, shape = shape_hat, rate = rate_hat, log = TRUE))
+aic_gam <- 2*2 - 2*loglik_gam
+
+data.frame(
+  Model = c("Lognormal", "Gamma"),
+  AIC   = c(aic_logn, aic_gam),
+  row.names = NULL
+)
+
+# CHOOSE THE DISTRIBUTION WITH THE LOWER AIC!!!!!!
+
+```
+
+## Tail Summaries
+
+```{r}
+
+q95 <- qlnorm(0.95, meanlog = mu, sdlog = sigma)
+q99 <- qlnorm(0.99, meanlog = mu, sdlog = sigma)
+
+c(q95_logn = q95, q99_logn = q99)
+
+quantile(x, probs = c(0.90, 0.95, 0.99))
+mean(x)
+
+```
+
+## Final report Sumamry
+```{r}
+
+# I had chat write this up for me. You guys can jsut copy and paste this with your appropriate variable names. 
+
+delta_aic <- aic_gam - aic_logn
+
+cat(
+  "- **Baseline frequency (lambda_hat):** ", round(lambda_hat, 4), " claims per exposure-year\n",
+  "- **Overdispersion (Var/Mean):** ", round(dispersion_ratio, 3), " → Negative Binomial preferred\n",
+  "- **Severity model:** Lognormal (meanlog = ", round(mu, 3), ", sdlog = ", round(sigma, 3), ")\n",
+  "- **Mean severity (Lognormal):** $", format(round(mean_sev, 0), big.mark=","), "\n",
+  "- **AIC comparison (Gamma - Lognormal):** ΔAIC = ", round(delta_aic, 1), " (positive favors Lognormal)\n",
+  sep = ""
+)
+
+```
+
+
+
+
+
+
+
 
 
 
