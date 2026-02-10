@@ -38,15 +38,17 @@ cargo_pol <- cargo_freq %>%
 
 ```{r}
 
-# You will either use Poisson or Negative Binomial. Try Poisson first.
+# Find your exposure - adjusted claim rate first AKA the expected number of claims per unit of exposure. This is NOT the average number of claims per policy since all exposures are NOT exactly equal to one.
 
 lambda_hat <- sum(cargo_pol$claims_pol) / sum(cargo_pol$exposure_pol)
 lambda_hat
 
-## I'm now going to try to see which distribution fits cargo lamba the best. 
+# Now find the average number of claims per policy with NO exposure adjustment. Also find the variance as well.
 
 mean_claims <- mean(cargo_pol$claims_pol)
 var_claims  <- var(cargo_pol$claims_pol)
+
+# Using your mean and variance now assign a distribution to the claim counts. It will either be Poisson or Negative Binomial. YOU WILL NOT USE THE LAMBDA WHEN ASSIGNING THE DISTRIBUTION. This is because the distribution choice is about shape, not scale, so you must use raw observed counts NOT exposure-scaled rates.
 
 dispersion_ratio <- var_claims / mean_claims
 c(mean_claims = mean_claims, var_claims = var_claims, dispersion_ratio = dispersion_ratio)
@@ -90,13 +92,13 @@ hist(
   xlab = "log(Claim Amount)"
 )
 
-qqplot(
+p<- qqplot(
   qlnorm(ppoints(length(x)), meanlog = mu, sdlog = sigma),
   sort(x),
   main = "QQ Plot – Cargo Severity (Lognormal)",
   xlab = "Theoretical Quantiles",
   ylab = "Observed Claim Amounts"
-)
+) 
 abline(0, 1, col = "red", lwd = 2)
 
 ```
