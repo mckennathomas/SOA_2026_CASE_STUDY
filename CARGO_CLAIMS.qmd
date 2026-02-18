@@ -23,14 +23,24 @@ cargo_sev <- read_excel(path, sheet = "sev")
 ```{r}
 
 cargo_pol <- cargo_freq %>%
-  filter(!is.na(exposure), !is.na(claim_count), exposure > 0) %>%
+  mutate(
+    claim_count = as.numeric(claim_count),
+    exposure    = as.numeric(exposure)
+  ) %>%
+  filter(
+    is.finite(claim_count),
+    claim_count >= 0,      # <- key addition
+    is.finite(exposure),
+    exposure > 0
+  ) %>%
   group_by(policy_id) %>%
   summarise(
-    exposure_pol = sum(exposure, na.rm = TRUE),
-    claims_pol   = sum(claim_count, na.rm = TRUE),
+    exposure_pol = sum(exposure),
+    claims_pol   = sum(claim_count),
     .groups = "drop"
   ) %>%
   filter(exposure_pol > 0)
+
 
 ```
 
@@ -101,6 +111,12 @@ p<- qqplot(
 ) 
 abline(0, 1, col = "red", lwd = 2)
 
+cargo_sev$cargo_type_clean <- sub("_.*", "", cargo_sev$cargo_type)
+
+ggplot(cargo_sev, aes(x = log(claim_amount), fill = cargo_type_clean)) +
+  geom_density(alpha = 0.4) +
+  labs(title = "Log Severity by Cargo Type")
+
 ```
 
 ## Comapring Distribution to Gamma
@@ -165,17 +181,184 @@ cat(
 
 
 
+## PART TWOOOOOOO
+
+```{r}
+
+# Start by getting parameters for the distribution you chose for your claim freq count. (Either Poisson or NB) I will be doing it for NB since that's what i chose in Part 1. 
+
+# Finding my parameters while taking into account exposure!! NegBin with exposure offset: E[claims | exposure] = rate * exposure. Also just as a side note in the traditional NB we use (r,p), in this case we are setting r = theta and p = theta/(theta+mu). This is common practice in actuarial pricing. 
+fit_nb <- glm.nb(claims_pol ~ 1 + offset(log(exposure_pol)), data = cargo_pol)
+summary(fit_nb)
+
+# After you fit the model you can now find the actual parameters.
+lambda_hat_nb <- exp(coef(fit_nb)[1])  
+# lamba is rate per exposure unit
+theta_nb      <- fit_nb$theta           
+#  theta is the dispersion parameter AKA our (p) parameter
+
+c(lambda_hat_nb = lambda_hat_nb, theta_nb = theta_nb)
+
+```
+
+## Time to use your severity and freq distributions to run some simulations!! We are using these simulations to see what the expected losses will be on average in the worst stress years as well as the worst 1% of years. (This is what Var and TVaR is)
+
+```{r}
+
+# you must start by setting your exposure period which is the sum of your exposure
+
+total_exposure <- sum(cargo_pol$exposure_pol)
+
+Exposure_period <- total_exposure 
+
+mu_period <- as.numeric(lambda_hat_nb) * Exposure_period
+mu_period
+
+# this is the expected/theoretical mean that we are shooting for. We will use this number to compare to the simulated mean
+
+expected_aggregate <- as.numeric(lambda_hat_nb) * Exposure_period * mean_sev
+expected_aggregate
+
+# SIMULATION TIME YAYYYY - i stole bootstrapping code from 424
+
+set.seed(123)
+n_sims <- 30000
+
+mu_period <- as.numeric(lambda_hat_nb) * Exposure_period
+
+agg_losses <- numeric(n_sims)
+
+for (i in seq_len(n_sims)) {
+  N <- rnbinom(1, size = theta_nb, mu = mu_period)
+  if (N == 0) {
+    agg_losses[i] <- 0
+  } else {
+    agg_losses[i] <- sum(rlnorm(N, meanlog = mu, sdlog = sigma))
+  }
+}
+
+# these are the values we will be putting in a table that we want
+
+mean_L  <- mean(agg_losses)
+VaR_99  <- as.numeric(quantile(agg_losses, 0.99, names = FALSE))
+TVaR_99 <- mean(agg_losses[agg_losses >= VaR_99])
+
+# in the table below you'll notice my ratio is super close to 1 this is AWESOME and means the simulation is correct.
+
+c(sim_mean = mean_L, theo_mean = expected_aggregate, ratio = mean_L/expected_aggregate,
+  VaR_99 = VaR_99, TVaR_99 = TVaR_99)
+
+```
+
+## Fitting models/simulation for each solar system
+
+```{r}
+
+# find the biggest risks from each solar system that DIRECTLY effect your specific hazard. For example for Cargo debris density obvi effects cargo collisions, so when reading about each system I saw that Heli had the most debris so i put it in the .95 quantile compared to the other solar systems.
 
 
+#Also on the lowest of keys i gave chat info about each of the solar systems and 
+
+q <- function(v, p) as.numeric(quantile(v, p, na.rm = TRUE))
+
+profiles <- rbind(
+  Helionis = data.frame(
+    solar_radiation  = q(cargo_pol$solar_radiation, 0.25),
+    debris_density   = q(cargo_pol$debris_density, 0.95),
+    route_risk       = q(cargo_pol$route_risk, 0.85),
+    distance         = q(cargo_pol$distance, 0.50),
+    transit_duration = q(cargo_pol$transit_duration, 0.50),
+    exposure_pol     = 1
+  ),
+  Bayesia = data.frame(
+    solar_radiation  = q(cargo_pol$solar_radiation, 0.90),
+    debris_density   = q(cargo_pol$debris_density, 0.40),
+    route_risk       = q(cargo_pol$route_risk, 0.40),
+    distance         = q(cargo_pol$distance, 0.60),
+    transit_duration = q(cargo_pol$transit_duration, 0.60),
+    exposure_pol     = 1
+  ),
+  Oryn = data.frame(
+    solar_radiation  = q(cargo_pol$solar_radiation, 0.60),
+    debris_density   = q(cargo_pol$debris_density, 0.50),
+    route_risk       = q(cargo_pol$route_risk, 0.75),
+    distance         = q(cargo_pol$distance, 0.90),
+    transit_duration = q(cargo_pol$transit_duration, 0.90),
+    exposure_pol     = 1
+  )
+)
+
+profiles
+
+```
+
+```{r}
+# baseline profile = "typical" environment
+baseline <- data.frame(
+  solar_radiation  = median(cargo_pol$solar_radiation, na.rm=TRUE),
+  debris_density   = median(cargo_pol$debris_density, na.rm=TRUE),
+  route_risk       = median(cargo_pol$route_risk, na.rm=TRUE),
+  distance         = median(cargo_pol$distance, na.rm=TRUE),
+  transit_duration = median(cargo_pol$transit_duration, na.rm=TRUE),
+  exposure_pol     = 1
+)
+
+# Frequency (claims per exposure unit)
+freq_base <- as.numeric(predict(fit_nb_x, newdata = baseline,  type = "response"))
+freq_sys  <- as.numeric(predict(fit_nb_x, newdata = profiles, type = "response"))
+
+freq_mult <- freq_sys / freq_base
+names(freq_mult) <- rownames(profiles)
+freq_mult
+
+mode_type <- names(sort(table(cargo_sev_clean$cargo_type_clean), decreasing = TRUE))[1]
+
+baseline_sev <- transform(baseline, cargo_type_clean = mode_type)
+profiles_sev <- cbind(profiles, cargo_type_clean = mode_type)
+
+m_base <- as.numeric(predict(fit_sev, newdata = baseline_sev))
+m_sys  <- as.numeric(predict(fit_sev, newdata = profiles_sev))
+
+sev_mult <- exp(m_sys - m_base)
+names(sev_mult) <- rownames(profiles)
+sev_mult
 
 
+```
+
+```{r}
+
+simulate_system <- function(E_period, freq_mult, sev_mult, n_sims = 30000, seed = 123) {
+  set.seed(seed)
+  mu_period <- as.numeric(lambda_hat_nb) * freq_mult * E_period
+
+  agg <- numeric(n_sims)
+  for (i in seq_len(n_sims)) {
+    N <- rnbinom(1, size = theta_nb, mu = mu_period)
+    agg[i] <- if (N == 0) 0 else sum(rlnorm(N, meanlog = mu + log(sev_mult), sdlog = sigma))
+  }
+
+  VaR_99  <- as.numeric(quantile(agg, 0.99, names = FALSE))
+  TVaR_99 <- mean(agg[agg >= VaR_99])
+
+  c(E_L = mean(agg), Var_L = var(agg), VaR_99 = VaR_99, TVaR_99 = TVaR_99)
+}
+
+E_total <- total_exposure 
+
+# simulating for each system based off profiles made earlier
+
+out <- rbind(
+  Helionis = simulate_system(E_total, freq_mult["Helionis"], sev_mult["Helionis"]),
+  Bayesia  = simulate_system(E_total, freq_mult["Bayesia"],  sev_mult["Bayesia"]),
+  Oryn     = simulate_system(E_total, freq_mult["Oryn"],     sev_mult["Oryn"])
+)
+
+#this is the end goal table we want 
+out
 
 
-
-
-
-
-
+```
 
 
 
