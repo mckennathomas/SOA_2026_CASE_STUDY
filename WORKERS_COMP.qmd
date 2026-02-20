@@ -1,21 +1,184 @@
 ---
-title: "WORKERS_COMP"
+title: "workers compensation"
 format: html
+editor_options: 
+  chunk_output_type: console
 ---
+
+## Load data - libraries
 
 ```{r}
 
-library(readxl)
+pacman::p_load(tidyverse, readxl, ggrepel, directlabels, readr, rio, knitr, pander, downloader, dplyr, plotly, ggplot2, ggthemes, haven, ggdist, janitor, MASS, here)
 
-workers_claims <- read_excel(file.choose())
+path = "srcsc-2026-claims-workers-comp.xlsx"
 
-path <- file.choose()
-excel_sheets(path)
+work_comp_freq = read_excel(path, sheet = "freq")
+work_comp_sev = read_excel(path, sheet = "sev")
 
-freq_worker <- read_excel(path, sheet = 1)
-sev_worker <- read_excel(path, sheet = 2)
-
-fre
 
 ```
+
+
+## Combing Rows and Filtering
+
+```{r}
+
+work_comp_pol <- work_comp_freq %>%
+  filter(!is.na(exposure), !is.na(claim_count), exposure > 0) %>%
+  group_by(policy_id) %>%
+  summarise(
+    exposure_pol = sum(exposure, na.rm = TRUE),
+    claims_pol   = sum(claim_count, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+```
+
+## Estimating claim Frequency
+
+```{r}
+
+# Expected number of claims, normalized by exposure
+
+lambda_hat <- sum(work_comp_pol$claims_pol) / sum(work_comp_pol$exposure_pol)
+lambda_hat
+
+# expected number of claims per policy with NO exposure adjustment.
+
+mean_claims <- mean(work_comp_pol$claims_pol)
+var_claims  <- var(work_comp_pol$claims_pol)
+
+# variance normalized by expected claims per policy (dispersion)
+
+dispersion_ratio <- var_claims / mean_claims
+c(mean_claims = mean_claims, var_claims = var_claims, dispersion_ratio = dispersion_ratio)
+
+# we use dispersion to see if possion would be a good fit (mean = vairance)
+# we will use neg-binomial, as varaince is 50% greater than mean
+
+```
+
+## Moving on to Serverity Modeling (this just means the size of the claims)
+
+```{r}
+
+# grab the claim amount $$, and filter it
+
+x <- work_comp_sev$claim_amount
+x <- as.numeric(x)
+x <- x[is.finite(x) & !is.na(x) & x > 0]
+
+# distribution parameters for claim amount
+
+mu    <- mean(log(x))
+sigma <- sd(log(x))
+
+# this is lognormal mean and median
+
+mean_sev   <- exp(mu + 0.5*sigma^2)
+median_sev <- exp(mu)
+
+c(meanlog = mu, sdlog = sigma, mean_severity = mean_sev, median_severity = median_sev)
+
+# notice the right skew of the data (mean to median)
+```
+
+## Visuals
+```{r}
+
+# A histogram of my log normal.
+ggplot(data.frame(x), aes(x = log(x))) +
+  geom_histogram(fill = "steelblue", color = "white") +
+  geom_vline(xintercept = mu, color = "red", size=.8) + # Mean in log-space
+  geom_vline(xintercept = median(log(x)), color = "green", size=.8) + # Mean in log-space
+  labs(title = "Log-transformed Claim Severity",
+       subtitle = "Red line represents the log-mean, Green represents the log median")
+
+
+
+ggplot(data.frame(x), aes(sample = log(x))) +
+  stat_qq(color = "steelblue", alpha = 0.5) + 
+  stat_qq_line(color = "red") +
+  labs(title = "Normal Q-Q Plot (Log-transformed Claims)",
+       x = "Theoretical Quantiles",
+       y = "Sample Quantiles")
+```
+
+## Comapring Distribution to Gamma
+
+```{r}
+
+
+# Lognormal log-likelihood + AIC
+
+loglik_logn <- sum(dlnorm(x, meanlog = mu, sdlog = sigma, log = TRUE))
+aic_logn <- 2*2 - 2*loglik_logn
+
+# Gamma MOM estimates + log-likelihood + AIC 
+m <- mean(x); v <- var(x)
+shape_hat <- m^2 / v
+rate_hat  <- m / v
+
+loglik_gam <- sum(dgamma(x, shape = shape_hat, rate = rate_hat, log = TRUE))
+aic_gam <- 2*2 - 2*loglik_gam
+
+data.frame(
+  Model = c("Lognormal", "Gamma"),
+  AIC   = c(aic_logn, aic_gam),
+  row.names = NULL
+)
+
+# we will choose lognormal, better fit then gamma
+
+```
+
+## Tail Summaries
+
+```{r}
+
+q95 <- qlnorm(0.95, meanlog = mu, sdlog = sigma)
+q99 <- qlnorm(0.99, meanlog = mu, sdlog = sigma)
+
+pander(c(q95_logn = q95, q99_logn = q99))
+
+pander(quantile(x, probs = c(0.90, 0.95, 0.99)))
+
+pander(mean(x))
+
+```
+
+## Final report Sumamry
+```{r}
+
+# chat-gpt
+
+delta_aic <- aic_gam - aic_logn
+
+cat(
+  "- **Baseline frequency (lambda_hat):** ", round(lambda_hat, 4), " claims per exposure-year\n",
+  "- **Overdispersion (Var/Mean):** ", round(dispersion_ratio, 3), " → Negative Binomial preferred\n",
+  "- **Severity model:** Lognormal (meanlog = ", round(mu, 3), ", sdlog = ", round(sigma, 3), ")\n",
+  "- **Mean severity (Lognormal):** $", format(round(mean_sev, 0), big.mark=","), "\n",
+  "- **AIC comparison (Gamma - Lognormal):** ΔAIC = ", round(delta_aic, 1), " (positive favors Lognormal)\n",
+  sep = ""
+)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
