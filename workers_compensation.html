@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.28">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Workers Compensation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="workers_compensation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="workers_compensation_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="workers_compensation_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="workers_compensation_files/libs/quarto-html/popper.min.js"></script>
+<script src="workers_compensation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="workers_compensation_files/libs/quarto-html/anchor.min.js"></script>
+<link href="workers_compensation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="workers_compensation_files/libs/quarto-html/quarto-syntax-highlighting-b719d3d4935f2b08311a76135e2bf442.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="workers_compensation_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="workers_compensation_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="workers_compensation_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Workers Compensation</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="load-data-libraries" class="level1">
+<h1>Load Data &amp; Libraries</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, readxl, ggrepel, directlabels, readr, rio, knitr, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               pander, downloader, dplyr, plotly, ggplot2, ggthemes, haven, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               ggdist, janitor, MASS, here)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>path <span class="ot">=</span> <span class="st">"srcsc-2026-claims-workers-comp.xlsx"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>work_comp_freq <span class="ot">=</span> <span class="fu">read_excel</span>(path, <span class="at">sheet =</span> <span class="st">"freq"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>work_comp_sev  <span class="ot">=</span> <span class="fu">read_excel</span>(path, <span class="at">sheet =</span> <span class="st">"sev"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="part-1-finding-the-right-distributions" class="level1">
+<h1>Part 1: Finding the Right Distributions</h1>
+<section id="combining-rows-and-filtering" class="level3">
+<h3 class="anchored" data-anchor-id="combining-rows-and-filtering">Combining Rows and Filtering</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregate to policy level - one row per policy</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>work_comp_pol <span class="ot">=</span> work_comp_freq <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(exposure), <span class="sc">!</span><span class="fu">is.na</span>(claim_count), exposure <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(policy_id) <span class="sc">%&gt;%</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol =</span> <span class="fu">sum</span>(exposure, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">claims_pol   =</span> <span class="fu">sum</span>(claim_count, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="estimating-claim-frequency-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-claim-frequency-distribution">Estimating Claim Frequency Distribution</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exposure-weighted claim rate</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>lambda_hat <span class="ot">=</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>claims_pol) <span class="sc">/</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>exposure_pol)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>lambda_hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.02820411</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for overdispersion - if variance &gt;&gt; mean, Poisson is not appropriate</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>mean_claims      <span class="ot">=</span> <span class="fu">mean</span>(work_comp_pol<span class="sc">$</span>claims_pol)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>var_claims       <span class="ot">=</span> <span class="fu">var</span>(work_comp_pol<span class="sc">$</span>claims_pol)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>dispersion_ratio <span class="ot">=</span> var_claims <span class="sc">/</span> mean_claims</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">mean_claims =</span> mean_claims, <span class="at">var_claims =</span> var_claims, <span class="at">dispersion_ratio =</span> dispersion_ratio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     mean_claims       var_claims dispersion_ratio 
+       0.6723619        1.0721500        1.5946025 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dispersion &gt; 1 means variance exceeds mean then Negative Binomial preferred over Poisson</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="estimating-claim-severity-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-claim-severity-distribution">Estimating Claim Severity Distribution</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter claim amounts to valid positives</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> work_comp_sev<span class="sc">$</span>claim_amount</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">as.numeric</span>(x)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> x[<span class="fu">is.finite</span>(x) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(x) <span class="sc">&amp;</span> x <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Raw lognormal parameters (used only for initial exploration and AIC comparison)</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>mu_raw    <span class="ot">=</span> <span class="fu">mean</span>(<span class="fu">log</span>(x))</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>sigma_raw <span class="ot">=</span> <span class="fu">sd</span>(<span class="fu">log</span>(x))</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>mean_sev_raw   <span class="ot">=</span> <span class="fu">exp</span>(mu_raw <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> sigma_raw<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>median_sev_raw <span class="ot">=</span> <span class="fu">exp</span>(mu_raw)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">meanlog =</span> mu_raw, <span class="at">sdlog =</span> sigma_raw, </span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean_severity =</span> mean_sev_raw, <span class="at">median_severity =</span> median_sev_raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        meanlog           sdlog   mean_severity median_severity 
+       7.807092        1.322341     5892.199020     2457.971582 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note the right skew: mean &gt;&gt; median, typical of insurance claim data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="severity-visuals" class="level3">
+<h3 class="anchored" data-anchor-id="severity-visuals">Severity Visuals</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Log-transformed histogram - should look approximately normal if lognormal fits</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(x), <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log</span>(x))) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">bins =</span> <span class="dv">40</span>) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> mu_raw, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">median</span>(<span class="fu">log</span>(x)), <span class="at">color =</span> <span class="st">"green"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Log-transformed Claim Severity"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Red = log-mean, Green = log-median"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"log(Claim Amount)"</span>, <span class="at">y =</span> <span class="st">"Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Q-Q plot - points should follow the line if log-normal is a good fit</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(x), <span class="fu">aes</span>(<span class="at">sample =</span> <span class="fu">log</span>(x))) <span class="sc">+</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>(<span class="at">color =</span> <span class="st">"steelblue"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Normal Q-Q Plot (Log-transformed Claims)"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Theoretical Quantiles"</span>, <span class="at">y =</span> <span class="st">"Sample Quantiles"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="comparing-severity-distributions-lognormal-vs-gamma" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-severity-distributions-lognormal-vs-gamma">Comparing Severity Distributions: Lognormal vs Gamma</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lognormal AIC</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>loglik_logn <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">dlnorm</span>(x, <span class="at">meanlog =</span> mu_raw, <span class="at">sdlog =</span> sigma_raw, <span class="at">log =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>aic_logn    <span class="ot">=</span> <span class="dv">2</span><span class="sc">*</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>loglik_logn</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Gamma MOM estimates + AIC</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>m         <span class="ot">=</span> <span class="fu">mean</span>(x); v <span class="ot">=</span> <span class="fu">var</span>(x)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>shape_hat <span class="ot">=</span> m<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> v</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>rate_hat  <span class="ot">=</span> m <span class="sc">/</span> v</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>loglik_gam <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">dgamma</span>(x, <span class="at">shape =</span> shape_hat, <span class="at">rate =</span> rate_hat, <span class="at">log =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>aic_gam    <span class="ot">=</span> <span class="dv">2</span><span class="sc">*</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>loglik_gam</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>delta_aic <span class="ot">=</span> aic_gam <span class="sc">-</span> aic_logn</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Lognormal"</span>, <span class="st">"Gamma"</span>),</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">AIC   =</span> <span class="fu">c</span>(aic_logn, aic_gam),</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">NULL</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Model      AIC
+1 Lognormal 36370.79
+2     Gamma 38883.83</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Positive delta AIC = Lognormal fits better → proceed with Lognormal for severity</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="tail-summaries" class="level3">
+<h3 class="anchored" data-anchor-id="tail-summaries">Tail Summaries</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>q95 <span class="ot">=</span> <span class="fu">qlnorm</span>(<span class="fl">0.95</span>, <span class="at">meanlog =</span> mu_raw, <span class="at">sdlog =</span> sigma_raw)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>q99 <span class="ot">=</span> <span class="fu">qlnorm</span>(<span class="fl">0.99</span>, <span class="at">meanlog =</span> mu_raw, <span class="at">sdlog =</span> sigma_raw)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">pander</span>(<span class="fu">c</span>(<span class="at">q95_logn =</span> q95, <span class="at">q99_logn =</span> q99))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">q95_logn</th>
+<th style="text-align: center;">q99_logn</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">21637</td>
+<td style="text-align: center;">53280</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pander</span>(<span class="fu">quantile</span>(x, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">90%</th>
+<th style="text-align: center;">95%</th>
+<th style="text-align: center;">99%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">15755</td>
+<td style="text-align: center;">47442</td>
+<td style="text-align: center;">97259</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pander</span>(<span class="fu">mean</span>(x))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><em>7828</em></p>
+</div>
+</div>
+</section>
+<section id="part-1-summary" class="level3">
+<h3 class="anchored" data-anchor-id="part-1-summary">Part 1 Summary</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"- **Baseline frequency (lambda_hat):** "</span>, <span class="fu">round</span>(lambda_hat, <span class="dv">4</span>), <span class="st">" claims per exposure-year</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"- **Overdispersion (Var/Mean):** "</span>, <span class="fu">round</span>(dispersion_ratio, <span class="dv">3</span>), <span class="st">" → Negative Binomial preferred</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"- **Severity model:** Lognormal (raw: meanlog = "</span>, <span class="fu">round</span>(mu_raw, <span class="dv">3</span>), <span class="st">", sdlog = "</span>, <span class="fu">round</span>(sigma_raw, <span class="dv">3</span>), <span class="st">")</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"- **Mean severity (raw Lognormal):** $"</span>, <span class="fu">format</span>(<span class="fu">round</span>(mean_sev_raw, <span class="dv">0</span>), <span class="at">big.mark=</span><span class="st">","</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"- **AIC comparison (Gamma - Lognormal):** ΔAIC = "</span>, <span class="fu">round</span>(delta_aic, <span class="dv">1</span>), <span class="st">" → Lognormal preferred</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">""</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>- **Baseline frequency (lambda_hat):** 0.0282 claims per exposure-year
+- **Overdispersion (Var/Mean):** 1.595 → Negative Binomial preferred
+- **Severity model:** Lognormal (raw: meanlog = 7.807, sdlog = 1.322)
+- **Mean severity (raw Lognormal):** $5,892
+- **AIC comparison (Gamma - Lognormal):** ΔAIC = 2513 → Lognormal preferred</code></pre>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-2-fitting-the-models" class="level1">
+<h1>Part 2: Fitting the Models</h1>
+<section id="fitting-frequency-model-negative-binomial-glm" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-frequency-model-negative-binomial-glm">Fitting Frequency Model (Negative Binomial GLM)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># NegBin GLM with log-exposure offset</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># theta = dispersion (size), lambda = rate per unit exposure</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>fit_nb <span class="ot">=</span> <span class="fu">glm.nb</span>(claims_pol <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(exposure_pol)), <span class="at">data =</span> work_comp_pol)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in dpois(y, mu, log = TRUE): non-integer x = 11.248512</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_nb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm.nb(formula = claims_pol ~ 1 + offset(log(exposure_pol)), 
+    data = work_comp_pol, init.theta = 11.89920545, link = log)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -3.56796    0.02389  -149.4   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(11.8992) family taken to be 1)
+
+    Null deviance: 2598.5  on 2852  degrees of freedom
+Residual deviance: 2598.5  on 2852  degrees of freedom
+AIC: 5496
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  11.90 
+          Std. Err.:  4.99 
+
+ 2 x log-likelihood:  -5491.977 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>lambda_hat_nb <span class="ot">=</span> <span class="fu">exp</span>(<span class="fu">coef</span>(fit_nb)[<span class="dv">1</span>])   <span class="co"># claim rate per exposure unit</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>theta_nb      <span class="ot">=</span> fit_nb<span class="sc">$</span>theta           <span class="co"># NegBin dispersion parameter</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">lambda_hat_nb =</span> lambda_hat_nb, <span class="at">theta_nb =</span> theta_nb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>lambda_hat_nb.(Intercept)                  theta_nb 
+               0.02821329               11.89920545 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale up to entire portfolio</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>Exposure_period  <span class="ot">=</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>exposure_pol)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>mu_period        <span class="ot">=</span> <span class="fu">as.numeric</span>(lambda_hat_nb) <span class="sc">*</span> Exposure_period  <span class="co"># expected claims, whole book</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">Exposure_period =</span> Exposure_period, <span class="at">mu_period =</span> mu_period)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Exposure_period       mu_period 
+      68013.084        1918.873 </code></pre>
+</div>
+</div>
+</section>
+<section id="cleaning-occupation-categories" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-occupation-categories">Cleaning Occupation Categories</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Collapse garbled occupation levels into "Other" to avoid unstable coefficients</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>work_comp_sev<span class="sc">$</span>occupation_clean  <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">?</span><span class="sc">\\</span><span class="st">?</span><span class="sc">\\</span><span class="st">?"</span>, work_comp_sev<span class="sc">$</span>occupation),</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                                          <span class="st">"Other"</span>, <span class="fu">as.character</span>(work_comp_sev<span class="sc">$</span>occupation))</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>work_comp_freq<span class="sc">$</span>occupation_clean <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">?</span><span class="sc">\\</span><span class="st">?</span><span class="sc">\\</span><span class="st">?"</span>, work_comp_freq<span class="sc">$</span>occupation),</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>                                          <span class="st">"Other"</span>, <span class="fu">as.character</span>(work_comp_freq<span class="sc">$</span>occupation))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="fitting-severity-model-lognormal-regression" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-severity-model-lognormal-regression">Fitting Severity Model (Lognormal Regression)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Log-normal regression: only include significant predictors for pricing stability</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Removed: gravity_level, experience_yrs, safety_training_index, hours_per_week (all p &gt; 0.3)</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>fit_sev <span class="ot">=</span> <span class="fu">glm</span>(<span class="fu">log</span>(claim_amount) <span class="sc">~</span> psych_stress_index <span class="sc">+</span> protective_gear_quality <span class="sc">+</span> occupation_clean,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> work_comp_sev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in log(claim_amount): NaNs produced</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = log(claim_amount) ~ psych_stress_index + protective_gear_quality + 
+    occupation_clean, data = work_comp_sev)
+
+Coefficients:
+                                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                           7.58733    0.15535  48.839  &lt; 2e-16 ***
+psych_stress_index                    0.22837    0.02040  11.196  &lt; 2e-16 ***
+protective_gear_quality              -0.13839    0.02194  -6.308 3.52e-10 ***
+occupation_cleanDrill Operator        0.14182    0.13153   1.078  0.28105    
+occupation_cleanEngineer              0.56870    0.14208   4.003 6.51e-05 ***
+occupation_cleanExecutive             0.89055    0.41592   2.141  0.03239 *  
+occupation_cleanMaintenance Staff    -0.05890    0.18102  -0.325  0.74494    
+occupation_cleanManager               0.49003    0.15280   3.207  0.00136 ** 
+occupation_cleanOther                 0.97485    0.63992   1.523  0.12783    
+occupation_cleanPlanetary Operations  0.10583    0.15873   0.667  0.50503    
+occupation_cleanSafety Officer        0.13263    0.15659   0.847  0.39711    
+occupation_cleanScientist             0.57459    0.18601   3.089  0.00204 ** 
+occupation_cleanSpacecraft Operator   0.07541    0.19025   0.396  0.69187    
+occupation_cleanTechnology Officer    0.25184    0.17284   1.457  0.14526    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for gaussian family taken to be 1.574775)
+
+    Null deviance: 3341.2  on 1909  degrees of freedom
+Residual deviance: 2985.8  on 1896  degrees of freedom
+  (7 observations deleted due to missingness)
+AIC: 6303.6
+
+Number of Fisher Scoring iterations: 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mu and sigma now come entirely from fit_sev - fully consistent for pricing</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># mu    = predicted log-mean at baseline (derived below per profile)</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># sigma = residual standard deviation after covariates are accounted for</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">=</span> <span class="fu">sqrt</span>(<span class="fu">summary</span>(fit_sev)<span class="sc">$</span>dispersion)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"sigma (from regression):"</span>, sigma, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>sigma (from regression): 1.254901 </code></pre>
+</div>
+</div>
+</section>
+<section id="solar-system-name-cleaning" class="level3">
+<h3 class="anchored" data-anchor-id="solar-system-name-cleaning">Solar System Name Cleaning</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>work_comp_freq<span class="sc">$</span>solar_system_clean <span class="ot">=</span> <span class="fu">sub</span>(<span class="st">"_.*"</span>, <span class="st">""</span>, work_comp_freq<span class="sc">$</span>solar_system)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>work_comp_sev<span class="sc">$</span>solar_system_clean  <span class="ot">=</span> <span class="fu">sub</span>(<span class="st">"_.*"</span>, <span class="st">""</span>, work_comp_sev<span class="sc">$</span>solar_system)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(work_comp_freq<span class="sc">$</span>solar_system_clean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Epsilon"          "Zeta"             "Helionis Cluster" NA                </code></pre>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-3-building-territory-profiles-multipliers" class="level1">
+<h1>Part 3: Building Territory Profiles &amp; Multipliers</h1>
+<section id="profile-construction" class="level3">
+<h3 class="anchored" data-anchor-id="profile-construction">Profile Construction</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper: median covariate for a specific solar system (used for Helionis which exists in data)</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>get_planet_med <span class="ot">=</span> <span class="cf">function</span>(planet_name, col_name) {</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  val <span class="ot">=</span> work_comp_freq <span class="sc">%&gt;%</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(solar_system_clean <span class="sc">==</span> planet_name) <span class="sc">%&gt;%</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(col_name)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">median</span>(val, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper: global percentile (used for Bayesia and Orion which do NOT exist in data)</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>get_perc <span class="ot">=</span> <span class="cf">function</span>(col_name, perc) {</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>  val <span class="ot">=</span> work_comp_freq <span class="sc">%&gt;%</span> <span class="fu">pull</span>(col_name)</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">quantile</span>(val, <span class="at">probs =</span> perc, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Profiles - DO NOT CHANGE these percentile assignments</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>profiles <span class="ot">=</span> <span class="fu">rbind</span>(</span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bayesia =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">psych_stress_index      =</span> <span class="fu">get_perc</span>(<span class="st">"psych_stress_index"</span>, .<span class="dv">75</span>),</span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">experience_yrs          =</span> <span class="fu">get_perc</span>(<span class="st">"experience_yrs"</span>, .<span class="dv">6</span>),</span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">safety_training_index   =</span> <span class="fu">get_perc</span>(<span class="st">"safety_training_index"</span>, .<span class="dv">7</span>),</span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">hours_per_week          =</span> <span class="fu">get_perc</span>(<span class="st">"hours_per_week"</span>, .<span class="dv">5</span>),</span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">protective_gear_quality =</span> <span class="fu">get_perc</span>(<span class="st">"protective_gear_quality"</span>, .<span class="dv">9</span>),</span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">gravity_level           =</span> <span class="fu">get_perc</span>(<span class="st">"gravity_level"</span>, .<span class="dv">85</span>),</span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">Orion =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">psych_stress_index      =</span> <span class="fu">get_perc</span>(<span class="st">"psych_stress_index"</span>, .<span class="dv">8</span>),</span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">experience_yrs          =</span> <span class="fu">get_perc</span>(<span class="st">"experience_yrs"</span>, .<span class="dv">3</span>),</span>
+<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">safety_training_index   =</span> <span class="fu">get_perc</span>(<span class="st">"safety_training_index"</span>, .<span class="dv">5</span>),</span>
+<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">hours_per_week          =</span> <span class="fu">get_perc</span>(<span class="st">"hours_per_week"</span>, .<span class="dv">65</span>),</span>
+<span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">protective_gear_quality =</span> <span class="fu">get_perc</span>(<span class="st">"protective_gear_quality"</span>, .<span class="dv">6</span>),</span>
+<span id="cb38-32"><a href="#cb38-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">gravity_level           =</span> <span class="fu">get_perc</span>(<span class="st">"gravity_level"</span>, .<span class="dv">45</span>),</span>
+<span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb38-34"><a href="#cb38-34" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb38-35"><a href="#cb38-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">Helionis_Cluster =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb38-36"><a href="#cb38-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">psych_stress_index      =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"psych_stress_index"</span>),</span>
+<span id="cb38-37"><a href="#cb38-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">experience_yrs          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"experience_yrs"</span>),</span>
+<span id="cb38-38"><a href="#cb38-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">safety_training_index   =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"safety_training_index"</span>),</span>
+<span id="cb38-39"><a href="#cb38-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">hours_per_week          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"hours_per_week"</span>),</span>
+<span id="cb38-40"><a href="#cb38-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">protective_gear_quality =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"protective_gear_quality"</span>),</span>
+<span id="cb38-41"><a href="#cb38-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">gravity_level           =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"gravity_level"</span>),</span>
+<span id="cb38-42"><a href="#cb38-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb38-43"><a href="#cb38-43" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-44"><a href="#cb38-44" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-45"><a href="#cb38-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-46"><a href="#cb38-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Overall median baseline - the reference point for all multipliers</span></span>
+<span id="cb38-47"><a href="#cb38-47" aria-hidden="true" tabindex="-1"></a>baseline <span class="ot">=</span> <span class="fu">data.frame</span>(</span>
+<span id="cb38-48"><a href="#cb38-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">psych_stress_index      =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>psych_stress_index, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb38-49"><a href="#cb38-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">experience_yrs          =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>experience_yrs, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb38-50"><a href="#cb38-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">safety_training_index   =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>safety_training_index, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb38-51"><a href="#cb38-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">hours_per_week          =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>hours_per_week, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb38-52"><a href="#cb38-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">protective_gear_quality =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>protective_gear_quality, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb38-53"><a href="#cb38-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">gravity_level           =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>gravity_level, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb38-54"><a href="#cb38-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb38-55"><a href="#cb38-55" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="frequency-multipliers" class="level3">
+<h3 class="anchored" data-anchor-id="frequency-multipliers">Frequency Multipliers</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># NegBin GLM frequency prediction - all profiles return same rate since no covariates in fit_nb</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (frequency model only uses intercept + exposure offset)</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>freq_base <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_nb, <span class="at">newdata =</span> baseline, <span class="at">type =</span> <span class="st">"response"</span>))</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>freq_sys  <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_nb, <span class="at">newdata =</span> profiles, <span class="at">type =</span> <span class="st">"response"</span>))</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>freq_mult <span class="ot">=</span> freq_sys <span class="sc">/</span> freq_base</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(freq_mult) <span class="ot">=</span> <span class="fu">rownames</span>(profiles)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Frequency multipliers (all ~1.0 - expected since fit_nb has no covariates):</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Frequency multipliers (all ~1.0 - expected since fit_nb has no covariates):</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(freq_mult)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Bayesia            Orion Helionis_Cluster 
+               1                1                1 </code></pre>
+</div>
+</div>
+</section>
+<section id="severity-multipliers" class="level3">
+<h3 class="anchored" data-anchor-id="severity-multipliers">Severity Multipliers</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Most common (clean) occupation used as the reference level</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>mode_occ     <span class="ot">=</span> <span class="fu">names</span>(<span class="fu">sort</span>(<span class="fu">table</span>(work_comp_sev<span class="sc">$</span>occupation_clean), <span class="at">decreasing =</span> <span class="cn">TRUE</span>))[<span class="dv">1</span>]</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>baseline_sev <span class="ot">=</span> <span class="fu">transform</span>(baseline, <span class="at">occupation_clean =</span> mode_occ)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>profiles_sev <span class="ot">=</span> <span class="fu">cbind</span>(profiles, <span class="at">occupation_clean =</span> mode_occ)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="co"># mu (log-mean) at baseline - this is now consistent with fit_sev</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_sev, <span class="at">newdata =</span> baseline_sev))</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Predicted log-mean at each profile</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>m_sys    <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_sev, <span class="at">newdata =</span> profiles_sev))</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Multiplicative severity relativities vs baseline</span></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>sev_mult <span class="ot">=</span> <span class="fu">exp</span>(m_sys <span class="sc">-</span> mu)</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(sev_mult) <span class="ot">=</span> <span class="fu">rownames</span>(profiles)</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Baseline mu (log-mean from regression):"</span>, <span class="fu">round</span>(mu, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Baseline mu (log-mean from regression): 7.6323 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Sigma (residual sd from regression):   "</span>, <span class="fu">round</span>(sigma, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Sigma (residual sd from regression):    1.2549 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Severity multipliers:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Severity multipliers:</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(sev_mult)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Bayesia            Orion Helionis_Cluster 
+        1.094151         1.094151         1.148425 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Implied mean severity per territory</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>mean_sev_baseline <span class="ot">=</span> <span class="fu">exp</span>(mu <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> sigma<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Baseline mean severity: $"</span>, <span class="fu">format</span>(<span class="fu">round</span>(mean_sev_baseline, <span class="dv">0</span>), <span class="at">big.mark=</span><span class="st">","</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Baseline mean severity: $ 4,536 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Expected aggregate (baseline): $"</span>, </span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format</span>(<span class="fu">round</span>(lambda_hat_nb <span class="sc">*</span> Exposure_period <span class="sc">*</span> mean_sev_baseline, <span class="dv">0</span>), <span class="at">big.mark=</span><span class="st">","</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Expected aggregate (baseline): $ 8,703,199 </code></pre>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-4-monte-carlo-simulation-by-territory" class="level1">
+<h1>Part 4: Monte Carlo Simulation by Territory</h1>
+<section id="simulation-function" class="level3">
+<h3 class="anchored" data-anchor-id="simulation-function">Simulation Function</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>simulate_system <span class="ot">=</span> <span class="cf">function</span>(E_period, f_mult, s_mult, mu_base, sigma, </span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">n_sims =</span> <span class="dv">30000</span>, <span class="at">seed =</span> <span class="dv">42</span>) {</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">is.na</span>(<span class="fu">c</span>(f_mult, s_mult)))) {</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">c</span>(<span class="at">Expected_Loss =</span> <span class="cn">NA</span>, <span class="at">Std_Dev =</span> <span class="cn">NA</span>, <span class="at">Variance =</span> <span class="cn">NA</span>, <span class="at">VaR_99 =</span> <span class="cn">NA</span>, <span class="at">TVaR_99 =</span> <span class="cn">NA</span>))</span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Adjusted expected claim count for this territory</span></span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>  mu_period_adj <span class="ot">=</span> <span class="fu">as.numeric</span>(lambda_hat_nb) <span class="sc">*</span> f_mult <span class="sc">*</span> E_period</span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a>  agg <span class="ot">=</span> <span class="fu">numeric</span>(n_sims)</span>
+<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_sims)) {</span>
+<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Frequency: NegBin with fitted theta and territory-adjusted mu</span></span>
+<span id="cb55-16"><a href="#cb55-16" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">=</span> <span class="fu">rnbinom</span>(<span class="dv">1</span>, <span class="at">size =</span> theta_nb, <span class="at">mu =</span> mu_period_adj)</span>
+<span id="cb55-17"><a href="#cb55-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb55-18"><a href="#cb55-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (N <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb55-19"><a href="#cb55-19" aria-hidden="true" tabindex="-1"></a>      agg[i] <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb55-20"><a href="#cb55-20" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb55-21"><a href="#cb55-21" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Severity: LogNormal with regression-derived mu and sigma</span></span>
+<span id="cb55-22"><a href="#cb55-22" aria-hidden="true" tabindex="-1"></a>      <span class="co"># s_mult shifts the log-mean multiplicatively (log scale addition)</span></span>
+<span id="cb55-23"><a href="#cb55-23" aria-hidden="true" tabindex="-1"></a>      vals <span class="ot">=</span> <span class="fu">rlnorm</span>(N, <span class="at">meanlog =</span> mu_base <span class="sc">+</span> <span class="fu">log</span>(s_mult), <span class="at">sdlog =</span> sigma)</span>
+<span id="cb55-24"><a href="#cb55-24" aria-hidden="true" tabindex="-1"></a>      vals[<span class="fu">is.infinite</span>(vals)] <span class="ot">=</span> <span class="fl">1e8</span>   <span class="co"># cap extreme outliers for stability</span></span>
+<span id="cb55-25"><a href="#cb55-25" aria-hidden="true" tabindex="-1"></a>      agg[i] <span class="ot">=</span> <span class="fu">sum</span>(vals)</span>
+<span id="cb55-26"><a href="#cb55-26" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb55-27"><a href="#cb55-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb55-28"><a href="#cb55-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb55-29"><a href="#cb55-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Risk metrics</span></span>
+<span id="cb55-30"><a href="#cb55-30" aria-hidden="true" tabindex="-1"></a>  sim_mean <span class="ot">=</span> <span class="fu">mean</span>(agg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb55-31"><a href="#cb55-31" aria-hidden="true" tabindex="-1"></a>  sim_var  <span class="ot">=</span> <span class="fu">var</span>(agg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb55-32"><a href="#cb55-32" aria-hidden="true" tabindex="-1"></a>  sim_sd   <span class="ot">=</span> <span class="fu">sd</span>(agg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb55-33"><a href="#cb55-33" aria-hidden="true" tabindex="-1"></a>  VaR_99   <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">quantile</span>(agg, <span class="fl">0.99</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">names =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb55-34"><a href="#cb55-34" aria-hidden="true" tabindex="-1"></a>  TVaR_99  <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">is.na</span>(VaR_99)) <span class="cn">NA</span> <span class="cf">else</span> <span class="fu">mean</span>(agg[agg <span class="sc">&gt;=</span> VaR_99], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb55-35"><a href="#cb55-35" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb55-36"><a href="#cb55-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">Expected_Loss =</span> sim_mean, </span>
+<span id="cb55-37"><a href="#cb55-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">Std_Dev       =</span> sim_sd,</span>
+<span id="cb55-38"><a href="#cb55-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variance      =</span> sim_var,</span>
+<span id="cb55-39"><a href="#cb55-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">VaR_99        =</span> VaR_99, </span>
+<span id="cb55-40"><a href="#cb55-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">TVaR_99       =</span> TVaR_99)</span>
+<span id="cb55-41"><a href="#cb55-41" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="run-simulations" class="level3">
+<h3 class="anchored" data-anchor-id="run-simulations">Run Simulations</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>E_total <span class="ot">=</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>exposure_pol)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Each territory gets a unique seed so draws are independent</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>out <span class="ot">=</span> <span class="fu">rbind</span>(</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bayesia          =</span> <span class="fu">simulate_system</span>(E_total, freq_mult[<span class="st">"Bayesia"</span>],</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>                                     sev_mult[<span class="st">"Bayesia"</span>],</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">mu_base =</span> mu, <span class="at">sigma =</span> sigma, <span class="at">seed =</span> <span class="dv">42</span>),</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Orion            =</span> <span class="fu">simulate_system</span>(E_total, freq_mult[<span class="st">"Orion"</span>],</span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>                                     sev_mult[<span class="st">"Orion"</span>],</span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">mu_base =</span> mu, <span class="at">sigma =</span> sigma, <span class="at">seed =</span> <span class="dv">43</span>),</span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">Helionis_Cluster =</span> <span class="fu">simulate_system</span>(E_total, freq_mult[<span class="st">"Helionis_Cluster"</span>],</span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a>                                     sev_mult[<span class="st">"Helionis_Cluster"</span>],</span>
+<span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">mu_base =</span> mu, <span class="at">sigma =</span> sigma, <span class="at">seed =</span> <span class="dv">44</span>)</span>
+<span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb56-15"><a href="#cb56-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-16"><a href="#cb56-16" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">round</span>(out, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 Expected_Loss Std_Dev     Variance   VaR_99  TVaR_99
+Bayesia                9514648 2788041 7.773172e+12 17290709 18646238
+Orion                  9535159 2816102 7.930432e+12 17330935 18818937
+Helionis_Cluster      10002093 2934913 8.613715e+12 17983761 19653998</code></pre>
+</div>
+</div>
+</section>
+<section id="territory-comparison-table" class="level3">
+<h3 class="anchored" data-anchor-id="territory-comparison-table">Territory Comparison Table</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Format for readability</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>out_fmt <span class="ot">=</span> <span class="fu">as.data.frame</span>(out)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>out_fmt[] <span class="ot">=</span> <span class="fu">lapply</span>(out_fmt, <span class="cf">function</span>(col) <span class="fu">paste0</span>(<span class="st">"$"</span>, <span class="fu">format</span>(<span class="fu">round</span>(col, <span class="dv">0</span>), <span class="at">big.mark =</span> <span class="st">","</span>)))</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(out_fmt, </span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">"Aggregate Loss Projections by Territory (30,000 Simulations)"</span>,</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Expected Loss"</span>, <span class="st">"Std Dev"</span>, <span class="st">"Variance"</span>, <span class="st">"VaR (99%)"</span>, <span class="st">"TVaR (99%)"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Aggregate Loss Projections by Territory (30,000 Simulations)</caption>
+<colgroup>
+<col style="width: 21%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 17%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Expected Loss</th>
+<th style="text-align: left;">Std Dev</th>
+<th style="text-align: left;">Variance</th>
+<th style="text-align: left;">VaR (99%)</th>
+<th style="text-align: left;">TVaR (99%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Bayesia</td>
+<td style="text-align: left;">$ 9,514,648</td>
+<td style="text-align: left;">$2,788,041</td>
+<td style="text-align: left;">$7.773172e+12</td>
+<td style="text-align: left;">$17,290,709</td>
+<td style="text-align: left;"><span class="math inline">\(18,646,238 |
+|Orion            |\)</span> 9,535,159</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Helionis_Cluster</td>
+<td style="text-align: left;">$10,002,093</td>
+<td style="text-align: left;">$2,934,913</td>
+<td style="text-align: left;">$8.613715e+12</td>
+<td style="text-align: left;">$17,983,761</td>
+<td style="text-align: left;">$19,653,998</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="severity-frequency-multiplier-summary" class="level3">
+<h3 class="anchored" data-anchor-id="severity-frequency-multiplier-summary">Severity &amp; Frequency Multiplier Summary</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>mult_summary <span class="ot">=</span> <span class="fu">data.frame</span>(</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Territory        =</span> <span class="fu">names</span>(freq_mult),</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Freq_Multiplier  =</span> <span class="fu">round</span>(<span class="fu">as.numeric</span>(freq_mult), <span class="dv">4</span>),</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sev_Multiplier   =</span> <span class="fu">round</span>(<span class="fu">as.numeric</span>(sev_mult), <span class="dv">4</span>),</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Combined_Mult    =</span> <span class="fu">round</span>(<span class="fu">as.numeric</span>(freq_mult) <span class="sc">*</span> <span class="fu">as.numeric</span>(sev_mult), <span class="dv">4</span>)</span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(mult_summary, <span class="at">caption =</span> <span class="st">"Frequency, Severity, and Combined Multipliers vs Baseline"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Frequency, Severity, and Combined Multipliers vs Baseline</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Territory</th>
+<th style="text-align: right;">Freq_Multiplier</th>
+<th style="text-align: right;">Sev_Multiplier</th>
+<th style="text-align: right;">Combined_Mult</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Bayesia</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.0942</td>
+<td style="text-align: right;">1.0942</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Orion</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.0942</td>
+<td style="text-align: right;">1.0942</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Helionis_Cluster</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.1484</td>
+<td style="text-align: right;">1.1484</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="visualization-expected-loss-distribution-by-territory" class="level3">
+<h3 class="anchored" data-anchor-id="visualization-expected-loss-distribution-by-territory">Visualization: Expected Loss Distribution by Territory</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Re-run sims and store all draws for plotting</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>sim_draws <span class="ot">=</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="cf">function</span>(i) {</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>  sys    <span class="ot">=</span> <span class="fu">rownames</span>(profiles)[i]</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>  f_mult <span class="ot">=</span> freq_mult[sys]</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>  s_mult <span class="ot">=</span> sev_mult[sys]</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>  seed_i <span class="ot">=</span> <span class="dv">41</span> <span class="sc">+</span> i</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed_i)</span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>  mu_period_adj <span class="ot">=</span> <span class="fu">as.numeric</span>(lambda_hat_nb) <span class="sc">*</span> f_mult <span class="sc">*</span> E_total</span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>  agg <span class="ot">=</span> <span class="fu">numeric</span>(<span class="dv">10000</span>)</span>
+<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="dv">10000</span>)) {</span>
+<span id="cb60-13"><a href="#cb60-13" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">=</span> <span class="fu">rnbinom</span>(<span class="dv">1</span>, <span class="at">size =</span> theta_nb, <span class="at">mu =</span> mu_period_adj)</span>
+<span id="cb60-14"><a href="#cb60-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (N <span class="sc">==</span> <span class="dv">0</span>) { agg[j] <span class="ot">=</span> <span class="dv">0</span> } </span>
+<span id="cb60-15"><a href="#cb60-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> {</span>
+<span id="cb60-16"><a href="#cb60-16" aria-hidden="true" tabindex="-1"></a>      vals <span class="ot">=</span> <span class="fu">rlnorm</span>(N, <span class="at">meanlog =</span> mu <span class="sc">+</span> <span class="fu">log</span>(s_mult), <span class="at">sdlog =</span> sigma)</span>
+<span id="cb60-17"><a href="#cb60-17" aria-hidden="true" tabindex="-1"></a>      vals[<span class="fu">is.infinite</span>(vals)] <span class="ot">=</span> <span class="fl">1e8</span></span>
+<span id="cb60-18"><a href="#cb60-18" aria-hidden="true" tabindex="-1"></a>      agg[j] <span class="ot">=</span> <span class="fu">sum</span>(vals)</span>
+<span id="cb60-19"><a href="#cb60-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb60-20"><a href="#cb60-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb60-21"><a href="#cb60-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">Territory =</span> sys, <span class="at">Loss =</span> agg)</span>
+<span id="cb60-22"><a href="#cb60-22" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb60-23"><a href="#cb60-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-24"><a href="#cb60-24" aria-hidden="true" tabindex="-1"></a>sim_df <span class="ot">=</span> <span class="fu">bind_rows</span>(sim_draws)</span>
+<span id="cb60-25"><a href="#cb60-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-26"><a href="#cb60-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_df, <span class="fu">aes</span>(<span class="at">x =</span> Loss <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">fill =</span> Territory)) <span class="sc">+</span></span>
+<span id="cb60-27"><a href="#cb60-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb60-28"><a href="#cb60-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Simulated Aggregate Loss Distribution by Territory"</span>,</span>
+<span id="cb60-29"><a href="#cb60-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Aggregate Loss ($ Millions)"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb60-30"><a href="#cb60-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="eda-for-pricing" class="level1">
+<h1>EDA for pricing!!!</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(work_comp_sev, <span class="fu">aes</span>(<span class="at">x =</span> protective_gear_quality, <span class="at">y =</span> claim_amount)) <span class="sc">+</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>() <span class="sc">+</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Claim Severity vs Protective Gear Quality"</span>,</span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Negative relationship justifies compliance credit"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_y_log10(): log-10 transformation introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_y_log10(): log-10 transformation introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(work_comp_sev, <span class="fu">aes</span>(<span class="at">x =</span> psych_stress_index, <span class="at">y =</span> claim_amount)) <span class="sc">+</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>() <span class="sc">+</span></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Claim Severity vs Psych Stress Index"</span>,</span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Positive relationship justifies waiting period"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_y_log10(): log-10 transformation introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_y_log10(): log-10 transformation introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 7 rows containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 7 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(work_comp_sev, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(occupation_clean, claim_amount, median), </span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">y =</span> claim_amount)) <span class="sc">+</span></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>() <span class="sc">+</span></span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Claim Severity by Occupation"</span>,</span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Justifies high-severity occupation sublimit"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_y_log10(): log-10 transformation introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing non-finite outside the scale range
+(`stat_boxplot()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>out_df <span class="ot">=</span> <span class="fu">as.data.frame</span>(out) <span class="sc">%&gt;%</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="st">"System"</span>)</span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(out_df, <span class="fu">aes</span>(<span class="at">x =</span> System, <span class="at">y =</span> TVaR_99 <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">fill =</span> System)) <span class="sc">+</span></span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"TVaR (99%) by Solar System"</span>,</span>
+<span id="cb81-7"><a href="#cb81-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"TVaR in $ Millions"</span>,</span>
+<span id="cb81-8"><a href="#cb81-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Drives system-specific endorsement design"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Shows exactly how many claims would be capped by a sublimit</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>sublimit <span class="ot">=</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">median</span>(work_comp_sev<span class="sc">$</span>claim_amount)</span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(work_comp_sev, <span class="fu">aes</span>(<span class="at">x =</span> claim_amount)) <span class="sc">+</span></span>
+<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
+<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> sublimit, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma) <span class="sc">+</span></span>
+<span id="cb82-8"><a href="#cb82-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> sublimit <span class="sc">*</span> <span class="fl">1.3</span>, <span class="at">y =</span> <span class="dv">100</span>, </span>
+<span id="cb82-9"><a href="#cb82-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"Sublimit: $"</span>, <span class="fu">format</span>(<span class="fu">round</span>(sublimit,<span class="dv">0</span>), <span class="at">big.mark=</span><span class="st">","</span>)), </span>
+<span id="cb82-10"><a href="#cb82-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb82-11"><a href="#cb82-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Claim Severity Distribution with Proposed Sublimit"</span>,</span>
+<span id="cb82-12"><a href="#cb82-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Claims to the right of the line would be capped"</span>,</span>
+<span id="cb82-13"><a href="#cb82-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Claim Amount (log scale)"</span>, <span class="at">y =</span> <span class="st">"Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_x_log10(labels = scales::comma): log-10 transformation
+introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
+(`geom_vline()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
+(`geom_text()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Shows which occupations are driving the excess claims</span></span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>work_comp_sev <span class="sc">%&gt;%</span></span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">excess =</span> <span class="fu">pmax</span>(claim_amount <span class="sc">-</span> sublimit, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(occupation_clean) <span class="sc">%&gt;%</span></span>
+<span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_excess =</span> <span class="fu">sum</span>(excess), <span class="at">avg_excess =</span> <span class="fu">mean</span>(excess), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb88-6"><a href="#cb88-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total_excess <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb88-7"><a href="#cb88-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(occupation_clean, total_excess), <span class="at">y =</span> total_excess <span class="sc">/</span> <span class="fl">1e6</span>)) <span class="sc">+</span></span>
+<span id="cb88-8"><a href="#cb88-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"tomato"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb88-9"><a href="#cb88-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb88-10"><a href="#cb88-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Total Excess Loss Above Sublimit by Occupation"</span>,</span>
+<span id="cb88-11"><a href="#cb88-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Justifies occupation-specific sublimit endorsement"</span>,</span>
+<span id="cb88-12"><a href="#cb88-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Excess Loss ($ Millions)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Shows the threshold where a compliance credit  would kick in</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>gear_threshold <span class="ot">=</span> <span class="fu">quantile</span>(work_comp_sev<span class="sc">$</span>protective_gear_quality, <span class="fl">0.80</span>)</span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(work_comp_sev, <span class="fu">aes</span>(<span class="at">x =</span> protective_gear_quality, <span class="at">y =</span> claim_amount, </span>
+<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>                           <span class="at">color =</span> protective_gear_quality <span class="sc">&gt;=</span> gear_threshold)) <span class="sc">+</span></span>
+<span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb89-7"><a href="#cb89-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb89-8"><a href="#cb89-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> gear_threshold, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"darkgreen"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb89-9"><a href="#cb89-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma) <span class="sc">+</span></span>
+<span id="cb89-10"><a href="#cb89-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"FALSE"</span> <span class="ot">=</span> <span class="st">"tomato"</span>, <span class="st">"TRUE"</span> <span class="ot">=</span> <span class="st">"steelblue"</span>),</span>
+<span id="cb89-11"><a href="#cb89-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Below Threshold"</span>, <span class="st">"Qualifies for Credit"</span>)) <span class="sc">+</span></span>
+<span id="cb89-12"><a href="#cb89-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> gear_threshold <span class="sc">+</span> <span class="fl">0.02</span>, <span class="at">y =</span> <span class="fu">max</span>(work_comp_sev<span class="sc">$</span>claim_amount) <span class="sc">*</span> <span class="fl">0.8</span>,</span>
+<span id="cb89-13"><a href="#cb89-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Credit Threshold (80th pct)"</span>, <span class="at">color =</span> <span class="st">"darkgreen"</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb89-14"><a href="#cb89-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Claim Severity vs Protective Gear Quality"</span>,</span>
+<span id="cb89-15"><a href="#cb89-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Blue points qualify for compliance credit — clear severity reduction"</span>,</span>
+<span id="cb89-16"><a href="#cb89-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Protective Gear Quality Index"</span>, <span class="at">y =</span> <span class="st">"Claim Amount (log scale)"</span>,</span>
+<span id="cb89-17"><a href="#cb89-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_y_log10(labels = scales::comma): log-10 transformation
+introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_y_log10(labels = scales::comma): log-10 transformation
+introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
+(`geom_text()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merges freq and sev data to show where high freq AND high sev overlap</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>freq_summary <span class="ot">=</span> work_comp_freq <span class="sc">%&gt;%</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(solar_system_clean) <span class="sc">%&gt;%</span></span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_claims =</span> <span class="fu">mean</span>(claim_count, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb98-6"><a href="#cb98-6" aria-hidden="true" tabindex="-1"></a>sev_summary <span class="ot">=</span> work_comp_sev <span class="sc">%&gt;%</span></span>
+<span id="cb98-7"><a href="#cb98-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(solar_system_clean) <span class="sc">%&gt;%</span></span>
+<span id="cb98-8"><a href="#cb98-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_severity =</span> <span class="fu">mean</span>(claim_amount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb98-9"><a href="#cb98-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb98-10"><a href="#cb98-10" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(freq_summary, sev_summary, <span class="at">by =</span> <span class="st">"solar_system_clean"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb98-11"><a href="#cb98-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(solar_system_clean)) <span class="sc">%&gt;%</span></span>
+<span id="cb98-12"><a href="#cb98-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> avg_claims, <span class="at">y =</span> avg_severity <span class="sc">/</span> <span class="fl">1e3</span>, <span class="at">label =</span> solar_system_clean)) <span class="sc">+</span></span>
+<span id="cb98-13"><a href="#cb98-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">5</span>, <span class="at">color =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb98-14"><a href="#cb98-14" aria-hidden="true" tabindex="-1"></a>  ggrepel<span class="sc">::</span><span class="fu">geom_label_repel</span>(<span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb98-15"><a href="#cb98-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Frequency vs Severity by Solar System"</span>,</span>
+<span id="cb98-16"><a href="#cb98-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Upper-right quadrant = highest risk systems needing endorsements"</span>,</span>
+<span id="cb98-17"><a href="#cb98-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Average Claims per Policy"</span>, <span class="at">y =</span> <span class="st">"Average Severity ($000s)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

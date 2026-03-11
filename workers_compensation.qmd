@@ -1,0 +1,578 @@
+---
+title: "Workers Compensation"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# Load Data & Libraries
+
+```{r}
+pacman::p_load(tidyverse, readxl, ggrepel, directlabels, readr, rio, knitr, 
+               pander, downloader, dplyr, plotly, ggplot2, ggthemes, haven, 
+               ggdist, janitor, MASS, here)
+
+path = "srcsc-2026-claims-workers-comp.xlsx"
+
+work_comp_freq = read_excel(path, sheet = "freq")
+work_comp_sev  = read_excel(path, sheet = "sev")
+```
+
+---
+
+# Part 1: Finding the Right Distributions
+
+### Combining Rows and Filtering
+
+```{r}
+# Aggregate to policy level - one row per policy
+work_comp_pol = work_comp_freq %>%
+  filter(!is.na(exposure), !is.na(claim_count), exposure > 0) %>%
+  group_by(policy_id) %>%
+  summarise(
+    exposure_pol = sum(exposure, na.rm = TRUE),
+    claims_pol   = sum(claim_count, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+### Estimating Claim Frequency Distribution
+
+```{r}
+# Exposure-weighted claim rate
+lambda_hat = sum(work_comp_pol$claims_pol) / sum(work_comp_pol$exposure_pol)
+lambda_hat
+
+# Check for overdispersion - if variance >> mean, Poisson is not appropriate
+mean_claims      = mean(work_comp_pol$claims_pol)
+var_claims       = var(work_comp_pol$claims_pol)
+dispersion_ratio = var_claims / mean_claims
+
+c(mean_claims = mean_claims, var_claims = var_claims, dispersion_ratio = dispersion_ratio)
+
+# Dispersion > 1 means variance exceeds mean then Negative Binomial preferred over Poisson
+```
+
+### Estimating Claim Severity Distribution
+
+```{r}
+# Filter claim amounts to valid positives
+x = work_comp_sev$claim_amount
+x = as.numeric(x)
+x = x[is.finite(x) & !is.na(x) & x > 0]
+
+# Raw lognormal parameters (used only for initial exploration and AIC comparison)
+mu_raw    = mean(log(x))
+sigma_raw = sd(log(x))
+
+mean_sev_raw   = exp(mu_raw + 0.5 * sigma_raw^2)
+median_sev_raw = exp(mu_raw)
+
+c(meanlog = mu_raw, sdlog = sigma_raw, 
+  mean_severity = mean_sev_raw, median_severity = median_sev_raw)
+# Note the right skew: mean >> median, typical of insurance claim data
+```
+
+### Severity Visuals
+
+```{r}
+# Log-transformed histogram - should look approximately normal if lognormal fits
+ggplot(data.frame(x), aes(x = log(x))) +
+  geom_histogram(fill = "steelblue", color = "white", bins = 40) +
+  geom_vline(xintercept = mu_raw, color = "red", linewidth = 0.8) +
+  geom_vline(xintercept = median(log(x)), color = "green", linewidth = 0.8) +
+  labs(title = "Log-transformed Claim Severity",
+       subtitle = "Red = log-mean, Green = log-median",
+       x = "log(Claim Amount)", y = "Count")
+```
+
+```{r}
+# Q-Q plot - points should follow the line if log-normal is a good fit
+ggplot(data.frame(x), aes(sample = log(x))) +
+  stat_qq(color = "steelblue", alpha = 0.5) +
+  stat_qq_line(color = "red") +
+  labs(title = "Normal Q-Q Plot (Log-transformed Claims)",
+       x = "Theoretical Quantiles", y = "Sample Quantiles")
+```
+
+### Comparing Severity Distributions: Lognormal vs Gamma
+
+```{r}
+# Lognormal AIC
+loglik_logn = sum(dlnorm(x, meanlog = mu_raw, sdlog = sigma_raw, log = TRUE))
+aic_logn    = 2*2 - 2*loglik_logn
+
+# Gamma MOM estimates + AIC
+m         = mean(x); v = var(x)
+shape_hat = m^2 / v
+rate_hat  = m / v
+
+loglik_gam = sum(dgamma(x, shape = shape_hat, rate = rate_hat, log = TRUE))
+aic_gam    = 2*2 - 2*loglik_gam
+
+delta_aic = aic_gam - aic_logn
+
+data.frame(
+  Model = c("Lognormal", "Gamma"),
+  AIC   = c(aic_logn, aic_gam),
+  row.names = NULL
+)
+# Positive delta AIC = Lognormal fits better → proceed with Lognormal for severity
+```
+
+### Tail Summaries
+
+```{r}
+q95 = qlnorm(0.95, meanlog = mu_raw, sdlog = sigma_raw)
+q99 = qlnorm(0.99, meanlog = mu_raw, sdlog = sigma_raw)
+
+pander(c(q95_logn = q95, q99_logn = q99))
+pander(quantile(x, probs = c(0.90, 0.95, 0.99)))
+pander(mean(x))
+```
+
+### Part 1 Summary
+
+```{r}
+cat(
+  "- **Baseline frequency (lambda_hat):** ", round(lambda_hat, 4), " claims per exposure-year\n",
+  "- **Overdispersion (Var/Mean):** ", round(dispersion_ratio, 3), " → Negative Binomial preferred\n",
+  "- **Severity model:** Lognormal (raw: meanlog = ", round(mu_raw, 3), ", sdlog = ", round(sigma_raw, 3), ")\n",
+  "- **Mean severity (raw Lognormal):** $", format(round(mean_sev_raw, 0), big.mark=","), "\n",
+  "- **AIC comparison (Gamma - Lognormal):** ΔAIC = ", round(delta_aic, 1), " → Lognormal preferred\n",
+  sep = ""
+)
+```
+
+---
+
+# Part 2: Fitting the Models
+
+### Fitting Frequency Model (Negative Binomial GLM)
+
+```{r}
+# NegBin GLM with log-exposure offset
+# theta = dispersion (size), lambda = rate per unit exposure
+fit_nb = glm.nb(claims_pol ~ 1 + offset(log(exposure_pol)), data = work_comp_pol)
+summary(fit_nb)
+
+lambda_hat_nb = exp(coef(fit_nb)[1])   # claim rate per exposure unit
+theta_nb      = fit_nb$theta           # NegBin dispersion parameter
+
+c(lambda_hat_nb = lambda_hat_nb, theta_nb = theta_nb)
+```
+
+```{r}
+# Scale up to entire portfolio
+Exposure_period  = sum(work_comp_pol$exposure_pol)
+mu_period        = as.numeric(lambda_hat_nb) * Exposure_period  # expected claims, whole book
+
+c(Exposure_period = Exposure_period, mu_period = mu_period)
+```
+
+### Cleaning Occupation Categories
+
+```{r}
+# Collapse garbled occupation levels into "Other" to avoid unstable coefficients
+work_comp_sev$occupation_clean  = ifelse(grepl("\\?\\?\\?", work_comp_sev$occupation),
+                                          "Other", as.character(work_comp_sev$occupation))
+
+work_comp_freq$occupation_clean = ifelse(grepl("\\?\\?\\?", work_comp_freq$occupation),
+                                          "Other", as.character(work_comp_freq$occupation))
+```
+
+### Fitting Severity Model (Lognormal Regression)
+
+```{r}
+# Log-normal regression: only include significant predictors for pricing stability
+# Removed: gravity_level, experience_yrs, safety_training_index, hours_per_week (all p > 0.3)
+fit_sev = glm(log(claim_amount) ~ psych_stress_index + protective_gear_quality + occupation_clean,
+              data = work_comp_sev)
+
+summary(fit_sev)
+
+# mu and sigma now come entirely from fit_sev - fully consistent for pricing
+# mu    = predicted log-mean at baseline (derived below per profile)
+# sigma = residual standard deviation after covariates are accounted for
+sigma = sqrt(summary(fit_sev)$dispersion)
+cat("sigma (from regression):", sigma, "\n")
+```
+
+### Solar System Name Cleaning
+
+```{r}
+work_comp_freq$solar_system_clean = sub("_.*", "", work_comp_freq$solar_system)
+work_comp_sev$solar_system_clean  = sub("_.*", "", work_comp_sev$solar_system)
+
+unique(work_comp_freq$solar_system_clean)
+```
+
+---
+
+# Part 3: Building Territory Profiles & Multipliers
+
+### Profile Construction
+
+```{r}
+# Helper: median covariate for a specific solar system (used for Helionis which exists in data)
+get_planet_med = function(planet_name, col_name) {
+  val = work_comp_freq %>%
+    filter(solar_system_clean == planet_name) %>%
+    pull(col_name)
+  return(median(val, na.rm = TRUE))
+}
+
+# Helper: global percentile (used for Bayesia and Orion which do NOT exist in data)
+get_perc = function(col_name, perc) {
+  val = work_comp_freq %>% pull(col_name)
+  return(quantile(val, probs = perc, na.rm = TRUE))
+}
+
+# Profiles - DO NOT CHANGE these percentile assignments
+profiles = rbind(
+  Bayesia = data.frame(
+    psych_stress_index      = get_perc("psych_stress_index", .75),
+    experience_yrs          = get_perc("experience_yrs", .6),
+    safety_training_index   = get_perc("safety_training_index", .7),
+    hours_per_week          = get_perc("hours_per_week", .5),
+    protective_gear_quality = get_perc("protective_gear_quality", .9),
+    gravity_level           = get_perc("gravity_level", .85),
+    exposure_pol            = 1
+  ),
+  Orion = data.frame(
+    psych_stress_index      = get_perc("psych_stress_index", .8),
+    experience_yrs          = get_perc("experience_yrs", .3),
+    safety_training_index   = get_perc("safety_training_index", .5),
+    hours_per_week          = get_perc("hours_per_week", .65),
+    protective_gear_quality = get_perc("protective_gear_quality", .6),
+    gravity_level           = get_perc("gravity_level", .45),
+    exposure_pol            = 1
+  ),
+  Helionis_Cluster = data.frame(
+    psych_stress_index      = get_planet_med("Helionis Cluster", "psych_stress_index"),
+    experience_yrs          = get_planet_med("Helionis Cluster", "experience_yrs"),
+    safety_training_index   = get_planet_med("Helionis Cluster", "safety_training_index"),
+    hours_per_week          = get_planet_med("Helionis Cluster", "hours_per_week"),
+    protective_gear_quality = get_planet_med("Helionis Cluster", "protective_gear_quality"),
+    gravity_level           = get_planet_med("Helionis Cluster", "gravity_level"),
+    exposure_pol            = 1
+  )
+)
+
+# Overall median baseline - the reference point for all multipliers
+baseline = data.frame(
+  psych_stress_index      = median(work_comp_freq$psych_stress_index, na.rm = TRUE),
+  experience_yrs          = median(work_comp_freq$experience_yrs, na.rm = TRUE),
+  safety_training_index   = median(work_comp_freq$safety_training_index, na.rm = TRUE),
+  hours_per_week          = median(work_comp_freq$hours_per_week, na.rm = TRUE),
+  protective_gear_quality = median(work_comp_freq$protective_gear_quality, na.rm = TRUE),
+  gravity_level           = median(work_comp_freq$gravity_level, na.rm = TRUE),
+  exposure_pol            = 1
+)
+```
+
+### Frequency Multipliers
+
+```{r}
+# NegBin GLM frequency prediction - all profiles return same rate since no covariates in fit_nb
+# (frequency model only uses intercept + exposure offset)
+freq_base = as.numeric(predict(fit_nb, newdata = baseline, type = "response"))
+freq_sys  = as.numeric(predict(fit_nb, newdata = profiles, type = "response"))
+freq_mult = freq_sys / freq_base
+names(freq_mult) = rownames(profiles)
+
+cat("Frequency multipliers (all ~1.0 - expected since fit_nb has no covariates):\n")
+print(freq_mult)
+```
+
+### Severity Multipliers
+
+```{r}
+# Most common (clean) occupation used as the reference level
+mode_occ     = names(sort(table(work_comp_sev$occupation_clean), decreasing = TRUE))[1]
+baseline_sev = transform(baseline, occupation_clean = mode_occ)
+profiles_sev = cbind(profiles, occupation_clean = mode_occ)
+
+# mu (log-mean) at baseline - this is now consistent with fit_sev
+mu = as.numeric(predict(fit_sev, newdata = baseline_sev))
+
+# Predicted log-mean at each profile
+m_sys    = as.numeric(predict(fit_sev, newdata = profiles_sev))
+
+# Multiplicative severity relativities vs baseline
+sev_mult = exp(m_sys - mu)
+names(sev_mult) = rownames(profiles)
+
+cat("Baseline mu (log-mean from regression):", round(mu, 4), "\n")
+cat("Sigma (residual sd from regression):   ", round(sigma, 4), "\n\n")
+cat("Severity multipliers:\n")
+print(sev_mult)
+
+# Implied mean severity per territory
+mean_sev_baseline = exp(mu + 0.5 * sigma^2)
+cat("\nBaseline mean severity: $", format(round(mean_sev_baseline, 0), big.mark=","), "\n")
+cat("Expected aggregate (baseline): $", 
+    format(round(lambda_hat_nb * Exposure_period * mean_sev_baseline, 0), big.mark=","), "\n")
+```
+
+---
+
+# Part 4: Monte Carlo Simulation by Territory
+
+### Simulation Function
+
+```{r}
+simulate_system = function(E_period, f_mult, s_mult, mu_base, sigma, 
+                            n_sims = 30000, seed = 42) {
+  set.seed(seed)
+  
+  if (any(is.na(c(f_mult, s_mult)))) {
+    return(c(Expected_Loss = NA, Std_Dev = NA, Variance = NA, VaR_99 = NA, TVaR_99 = NA))
+  }
+  
+  # Adjusted expected claim count for this territory
+  mu_period_adj = as.numeric(lambda_hat_nb) * f_mult * E_period
+  
+  agg = numeric(n_sims)
+  
+  for (i in seq_len(n_sims)) {
+    # Frequency: NegBin with fitted theta and territory-adjusted mu
+    N = rnbinom(1, size = theta_nb, mu = mu_period_adj)
+    
+    if (N == 0) {
+      agg[i] = 0
+    } else {
+      # Severity: LogNormal with regression-derived mu and sigma
+      # s_mult shifts the log-mean multiplicatively (log scale addition)
+      vals = rlnorm(N, meanlog = mu_base + log(s_mult), sdlog = sigma)
+      vals[is.infinite(vals)] = 1e8   # cap extreme outliers for stability
+      agg[i] = sum(vals)
+    }
+  }
+  
+  # Risk metrics
+  sim_mean = mean(agg, na.rm = TRUE)
+  sim_var  = var(agg, na.rm = TRUE)
+  sim_sd   = sd(agg, na.rm = TRUE)
+  VaR_99   = as.numeric(quantile(agg, 0.99, na.rm = TRUE, names = FALSE))
+  TVaR_99  = if (is.na(VaR_99)) NA else mean(agg[agg >= VaR_99], na.rm = TRUE)
+  
+  c(Expected_Loss = sim_mean, 
+    Std_Dev       = sim_sd,
+    Variance      = sim_var,
+    VaR_99        = VaR_99, 
+    TVaR_99       = TVaR_99)
+}
+```
+
+### Run Simulations
+
+```{r}
+E_total = sum(work_comp_pol$exposure_pol)
+
+# Each territory gets a unique seed so draws are independent
+out = rbind(
+  Bayesia          = simulate_system(E_total, freq_mult["Bayesia"],
+                                     sev_mult["Bayesia"],
+                                     mu_base = mu, sigma = sigma, seed = 42),
+  Orion            = simulate_system(E_total, freq_mult["Orion"],
+                                     sev_mult["Orion"],
+                                     mu_base = mu, sigma = sigma, seed = 43),
+  Helionis_Cluster = simulate_system(E_total, freq_mult["Helionis_Cluster"],
+                                     sev_mult["Helionis_Cluster"],
+                                     mu_base = mu, sigma = sigma, seed = 44)
+)
+
+print(round(out, 0))
+```
+
+### Territory Comparison Table
+
+```{r}
+# Format for readability
+out_fmt = as.data.frame(out)
+out_fmt[] = lapply(out_fmt, function(col) paste0("$", format(round(col, 0), big.mark = ",")))
+
+knitr::kable(out_fmt, 
+             caption = "Aggregate Loss Projections by Territory (30,000 Simulations)",
+             col.names = c("Expected Loss", "Std Dev", "Variance", "VaR (99%)", "TVaR (99%)"))
+```
+
+### Severity & Frequency Multiplier Summary
+
+```{r}
+mult_summary = data.frame(
+  Territory        = names(freq_mult),
+  Freq_Multiplier  = round(as.numeric(freq_mult), 4),
+  Sev_Multiplier   = round(as.numeric(sev_mult), 4),
+  Combined_Mult    = round(as.numeric(freq_mult) * as.numeric(sev_mult), 4)
+)
+
+knitr::kable(mult_summary, caption = "Frequency, Severity, and Combined Multipliers vs Baseline")
+```
+
+### Visualization: Expected Loss Distribution by Territory
+
+```{r}
+# Re-run sims and store all draws for plotting
+set.seed(42)
+sim_draws = lapply(1:3, function(i) {
+  sys    = rownames(profiles)[i]
+  f_mult = freq_mult[sys]
+  s_mult = sev_mult[sys]
+  seed_i = 41 + i
+  set.seed(seed_i)
+  
+  mu_period_adj = as.numeric(lambda_hat_nb) * f_mult * E_total
+  agg = numeric(10000)
+  for (j in seq_len(10000)) {
+    N = rnbinom(1, size = theta_nb, mu = mu_period_adj)
+    if (N == 0) { agg[j] = 0 } 
+    else {
+      vals = rlnorm(N, meanlog = mu + log(s_mult), sdlog = sigma)
+      vals[is.infinite(vals)] = 1e8
+      agg[j] = sum(vals)
+    }
+  }
+  data.frame(Territory = sys, Loss = agg)
+})
+
+sim_df = bind_rows(sim_draws)
+
+ggplot(sim_df, aes(x = Loss / 1e6, fill = Territory)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Simulated Aggregate Loss Distribution by Territory",
+       x = "Aggregate Loss ($ Millions)", y = "Density") +
+  theme_minimal()
+```
+
+
+
+# EDA for pricing!!!
+
+```{r}
+ggplot(work_comp_sev, aes(x = protective_gear_quality, y = claim_amount)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  scale_y_log10() +
+  labs(title = "Claim Severity vs Protective Gear Quality",
+       subtitle = "Negative relationship justifies compliance credit")
+
+```
+
+
+```{r}
+ggplot(work_comp_sev, aes(x = psych_stress_index, y = claim_amount)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  scale_y_log10() +
+  labs(title = "Claim Severity vs Psych Stress Index",
+       subtitle = "Positive relationship justifies waiting period")
+
+```
+
+
+```{r}
+ggplot(work_comp_sev, aes(x = reorder(occupation_clean, claim_amount, median), 
+                           y = claim_amount)) +
+  geom_boxplot(fill = "steelblue", alpha = 0.6) +
+  scale_y_log10() +
+  coord_flip() +
+  labs(title = "Claim Severity by Occupation",
+       subtitle = "Justifies high-severity occupation sublimit")
+
+```
+
+
+```{r}
+out_df = as.data.frame(out) %>%
+  rownames_to_column("System")
+
+ggplot(out_df, aes(x = System, y = TVaR_99 / 1e6, fill = System)) +
+  geom_col() +
+  labs(title = "TVaR (99%) by Solar System",
+       y = "TVaR in $ Millions",
+       subtitle = "Drives system-specific endorsement design")
+```
+
+
+```{r}
+# Shows exactly how many claims would be capped by a sublimit
+sublimit = 2 * median(work_comp_sev$claim_amount)
+
+ggplot(work_comp_sev, aes(x = claim_amount)) +
+  geom_histogram(fill = "steelblue", color = "white", bins = 50) +
+  geom_vline(xintercept = sublimit, color = "red", linewidth = 1, linetype = "dashed") +
+  scale_x_log10(labels = scales::comma) +
+  annotate("text", x = sublimit * 1.3, y = 100, 
+           label = paste0("Sublimit: $", format(round(sublimit,0), big.mark=",")), 
+           color = "red", hjust = 0) +
+  labs(title = "Claim Severity Distribution with Proposed Sublimit",
+       subtitle = "Claims to the right of the line would be capped",
+       x = "Claim Amount (log scale)", y = "Count")
+
+```
+
+
+```{r}
+# Shows which occupations are driving the excess claims
+work_comp_sev %>%
+  mutate(excess = pmax(claim_amount - sublimit, 0)) %>%
+  group_by(occupation_clean) %>%
+  summarise(total_excess = sum(excess), avg_excess = mean(excess), .groups = "drop") %>%
+  filter(total_excess > 0) %>%
+  ggplot(aes(x = reorder(occupation_clean, total_excess), y = total_excess / 1e6)) +
+  geom_col(fill = "tomato", alpha = 0.8) +
+  coord_flip() +
+  labs(title = "Total Excess Loss Above Sublimit by Occupation",
+       subtitle = "Justifies occupation-specific sublimit endorsement",
+       x = NULL, y = "Excess Loss ($ Millions)")
+
+```
+
+
+
+```{r}
+# Shows the threshold where a compliance credit  would kick in
+gear_threshold = quantile(work_comp_sev$protective_gear_quality, 0.80)
+
+ggplot(work_comp_sev, aes(x = protective_gear_quality, y = claim_amount, 
+                           color = protective_gear_quality >= gear_threshold)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  geom_vline(xintercept = gear_threshold, linetype = "dashed", color = "darkgreen", linewidth = 1) +
+  scale_y_log10(labels = scales::comma) +
+  scale_color_manual(values = c("FALSE" = "tomato", "TRUE" = "steelblue"),
+                     labels = c("Below Threshold", "Qualifies for Credit")) +
+  annotate("text", x = gear_threshold + 0.02, y = max(work_comp_sev$claim_amount) * 0.8,
+           label = "Credit Threshold (80th pct)", color = "darkgreen", hjust = 0) +
+  labs(title = "Claim Severity vs Protective Gear Quality",
+       subtitle = "Blue points qualify for compliance credit — clear severity reduction",
+       x = "Protective Gear Quality Index", y = "Claim Amount (log scale)",
+       color = NULL)
+
+```
+
+
+```{r}
+# Merges freq and sev data to show where high freq AND high sev overlap
+freq_summary = work_comp_freq %>%
+  group_by(solar_system_clean) %>%
+  summarise(avg_claims = mean(claim_count, na.rm = TRUE), .groups = "drop")
+
+sev_summary = work_comp_sev %>%
+  group_by(solar_system_clean) %>%
+  summarise(avg_severity = mean(claim_amount, na.rm = TRUE), .groups = "drop")
+
+left_join(freq_summary, sev_summary, by = "solar_system_clean") %>%
+  filter(!is.na(solar_system_clean)) %>%
+  ggplot(aes(x = avg_claims, y = avg_severity / 1e3, label = solar_system_clean)) +
+  geom_point(size = 5, color = "steelblue") +
+  ggrepel::geom_label_repel(size = 4) +
+  labs(title = "Frequency vs Severity by Solar System",
+       subtitle = "Upper-right quadrant = highest risk systems needing endorsements",
+       x = "Average Claims per Policy", y = "Average Severity ($000s)")
+
+```
+
+

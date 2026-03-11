@@ -24,7 +24,7 @@ work_comp_sev = read_excel(path, sheet = "sev")
 
 ```{r}
 
-work_comp_pol <- work_comp_freq %>%
+work_comp_pol = work_comp_freq %>%
   filter(!is.na(exposure), !is.na(claim_count), exposure > 0) %>%
   group_by(policy_id) %>%
   summarise(
@@ -41,17 +41,17 @@ work_comp_pol <- work_comp_freq %>%
 
 # Expected number of claims, normalized by exposure
 
-lambda_hat <- sum(work_comp_pol$claims_pol) / sum(work_comp_pol$exposure_pol)
+lambda_hat = sum(work_comp_pol$claims_pol) / sum(work_comp_pol$exposure_pol)
 lambda_hat
 
 # expected number of claims per policy with NO exposure adjustment.
 
-mean_claims <- mean(work_comp_pol$claims_pol)
-var_claims  <- var(work_comp_pol$claims_pol)
+mean_claims = mean(work_comp_pol$claims_pol)
+var_claims  = var(work_comp_pol$claims_pol)
 
 # variance normalized by expected claims per policy (dispersion)
 
-dispersion_ratio <- var_claims / mean_claims
+dispersion_ratio = var_claims / mean_claims
 c(mean_claims = mean_claims, var_claims = var_claims, dispersion_ratio = dispersion_ratio)
 
 # we use dispersion to see if possion would be a good fit (mean = vairance)
@@ -65,19 +65,19 @@ c(mean_claims = mean_claims, var_claims = var_claims, dispersion_ratio = dispers
 
 # grab the claim amount $$, and filter it
 
-x <- work_comp_sev$claim_amount
-x <- as.numeric(x)
-x <- x[is.finite(x) & !is.na(x) & x > 0]
+x = work_comp_sev$claim_amount
+x = as.numeric(x)
+x = x[is.finite(x) & !is.na(x) & x > 0]
 
 # distribution parameters for claim amount
 
-mu    <- mean(log(x))
-sigma <- sd(log(x))
+mu    = mean(log(x))
+sigma = sd(log(x))
 
 # this is lognormal mean and median
 
-mean_sev   <- exp(mu + 0.5*sigma^2)
-median_sev <- exp(mu)
+mean_sev   = exp(mu + 0.5*sigma^2)
+median_sev = exp(mu)
 
 c(meanlog = mu, sdlog = sigma, mean_severity = mean_sev, median_severity = median_sev)
 
@@ -96,6 +96,10 @@ ggplot(data.frame(x), aes(x = log(x))) +
        subtitle = "Red line represents the log-mean, Green represents the log median")
 
 
+```
+
+
+```{r}
 
 ggplot(data.frame(x), aes(sample = log(x))) +
   stat_qq(color = "steelblue", alpha = 0.5) + 
@@ -112,16 +116,16 @@ ggplot(data.frame(x), aes(sample = log(x))) +
 
 # Lognormal log-likelihood + AIC
 
-loglik_logn <- sum(dlnorm(x, meanlog = mu, sdlog = sigma, log = TRUE))
-aic_logn <- 2*2 - 2*loglik_logn
+loglik_logn = sum(dlnorm(x, meanlog = mu, sdlog = sigma, log = TRUE))
+aic_logn = 2*2 - 2*loglik_logn
 
 # Gamma MOM estimates + log-likelihood + AIC 
-m <- mean(x); v <- var(x)
-shape_hat <- m^2 / v
-rate_hat  <- m / v
+m = mean(x); v = var(x)
+shape_hat = m^2 / v
+rate_hat  = m / v
 
-loglik_gam <- sum(dgamma(x, shape = shape_hat, rate = rate_hat, log = TRUE))
-aic_gam <- 2*2 - 2*loglik_gam
+loglik_gam = sum(dgamma(x, shape = shape_hat, rate = rate_hat, log = TRUE))
+aic_gam = 2*2 - 2*loglik_gam
 
 data.frame(
   Model = c("Lognormal", "Gamma"),
@@ -137,8 +141,8 @@ data.frame(
 
 ```{r}
 
-q95 <- qlnorm(0.95, meanlog = mu, sdlog = sigma)
-q99 <- qlnorm(0.99, meanlog = mu, sdlog = sigma)
+q95 = qlnorm(0.95, meanlog = mu, sdlog = sigma)
+q99 = qlnorm(0.99, meanlog = mu, sdlog = sigma)
 
 pander(c(q95_logn = q95, q99_logn = q99))
 
@@ -153,7 +157,7 @@ pander(mean(x))
 
 # chat-gpt
 
-delta_aic <- aic_gam - aic_logn
+delta_aic = aic_gam - aic_logn
 
 cat(
   "- **Baseline frequency (lambda_hat):** ", round(lambda_hat, 4), " claims per exposure-year\n",
@@ -174,11 +178,323 @@ cat(
 
 
 
+## Part 2
+
+```{r}
+
+# r = theta, p = tehta /(theta + mu)
+fit_nb = glm.nb(claims_pol ~ 1 + offset(log(exposure_pol)), data = work_comp_pol)
+summary(fit_nb)
+
+# intercept
+lambda_hat_nb = exp(coef(fit_nb)[1])  
+
+# r 
+theta_nb = fit_nb$theta
+
+c(lambda_hat_nb = lambda_hat_nb, theta_nb = theta_nb)
+
+```
+
+## Time to use your severity and freq distributions to run some simulations!! We are using these simulations to see what the expected losses will be on average in the worst stress years as well as the worst 1% of years. (This is what Var and TVaR is)
+
+```{r}
+
+# total exposure
+Exposure_period = sum(work_comp_pol$exposure_pol)
+
+# r times the total exposure, this is akin finding the rate for the entire company, instead of one policy
+mu_period = as.numeric(lambda_hat_nb) * Exposure_period
+mu_period
+
+# this is the rate for the entire company, multiplied by the mean claim cost
+expected_aggregate = as.numeric(lambda_hat_nb) * Exposure_period * mean_sev
+expected_aggregate
+
+# for reproducing it
+set.seed(42)
+n_sims = 30000
+
+# total losses
+agg_losses = numeric(n_sims)
+
+# run 30k times
+for (i in seq_len(n_sims)) {
+  # this creates a vector of frequencies (similating data) ie: 34 calims this year 47 nect
+  N = rnbinom(1, size = theta_nb, mu = mu_period)
+  if (N == 0) {
+    agg_losses[i] = 0
+  } else {
+    # makes the severity, ie a cost for a claim
+    agg_losses[i] = sum(rlnorm(N, meanlog = mu, sdlog = sigma))
+  }
+}
+
+# average of all 30k years of claims
+mean_L  = mean(agg_losses)
+# value at risk (at what cost does the worst 99% start at)
+VaR_99  = as.numeric(quantile(agg_losses, 0.99, names = FALSE))
+# mean value at risk (average cost of the worst 1%)
+TVaR_99 = mean(agg_losses[agg_losses >= VaR_99])
+
+c(sim_mean = mean_L, theo_mean = expected_aggregate, ratio = mean_L/expected_aggregate,
+  VaR_99 = VaR_99, TVaR_99 = TVaR_99)
+
+```
+
+## Fitting models/simulation for each solar system
+
+```{r}
+# Clean the solar_system names in both datasets
+work_comp_freq$solar_system_clean = sub("_.*", "", work_comp_freq$solar_system)
+work_comp_sev$solar_system_clean  = sub("_.*", "", work_comp_sev$solar_system)
+
+# Verify the cleaning - should only see Epsilon, Zeta, Helionis Cluster, and maybe NA
+unique(work_comp_freq$solar_system_clean)
+```
+
+```{r}
+
+# Helper function to get the median for each column inputted, for a specific cleaned planet name cause they gave us crappy data there
+get_planet_med = function(planet_name, col_name) {
+  val = work_comp_freq %>% 
+    filter(solar_system_clean == planet_name) %>% 
+    pull(col_name)
+  return(median(val, na.rm = TRUE))
+}
+
+get_perc = function(col_name, perc) {
+  val = work_comp_freq %>% 
+    pull(col_name)
+  return(quantile(val, probs = perc, na.rm = TRUE))
+}
+
+profiles = rbind(
+  Bayesia = data.frame(
+    gravity_level           = get_perc("gravity_level", .85),
+    psych_stress_index      = get_perc("psych_stress_index", .75),
+    experience_yrs          = get_perc("experience_yrs", .6),
+    safety_training_index   = get_perc("safety_training_index", .7),
+    hours_per_week          = get_perc("hours_per_week", .5),
+    protective_gear_quality = get_perc("protective_gear_quality", .9),
+    exposure_pol            = 1
+  ),
+  Orion = data.frame(
+    gravity_level           = get_perc("gravity_level", .45),
+    psych_stress_index      = get_perc("psych_stress_index", .8),
+    experience_yrs          = get_perc("experience_yrs", .3),
+    safety_training_index   = get_perc("safety_training_index", .5),
+    hours_per_week          = get_perc("hours_per_week", .65),
+    protective_gear_quality = get_perc("protective_gear_quality", .6),
+    exposure_pol            = 1
+  ),
+  Helionis_Cluster = data.frame(
+    gravity_level           = get_planet_med("Helionis Cluster", "gravity_level"),
+    psych_stress_index      = get_planet_med("Helionis Cluster", "psych_stress_index"),
+    experience_yrs          = get_planet_med("Helionis Cluster", "experience_yrs"),
+    safety_training_index   = get_planet_med("Helionis Cluster", "safety_training_index"),
+    hours_per_week          = get_planet_med("Helionis Cluster", "hours_per_week"),
+    protective_gear_quality = get_planet_med("Helionis Cluster", "protective_gear_quality"),
+    exposure_pol            = 1
+  )
+)
+
+# Baseline Profile (Overall Median), this will give us how to compare the overal middle to each levels planetary middle value
+baseline = data.frame(
+  gravity_level           = median(work_comp_freq$gravity_level, na.rm=TRUE),
+  psych_stress_index      = median(work_comp_freq$psych_stress_index, na.rm=TRUE),
+  experience_yrs          = median(work_comp_freq$experience_yrs, na.rm=TRUE),
+  safety_training_index   = median(work_comp_freq$safety_training_index, na.rm=TRUE),
+  hours_per_week          = median(work_comp_freq$hours_per_week, na.rm=TRUE),
+  protective_gear_quality = median(work_comp_freq$protective_gear_quality, na.rm=TRUE),
+  exposure_pol            = 1
+)
+```
+
+```{r}
+# Does the freq of claims change (noooo)
+freq_base = as.numeric(predict(fit_nb, newdata = baseline, type = "response"))
+freq_sys  = as.numeric(predict(fit_nb, newdata = profiles, type = "response"))
+freq_mult = freq_sys / freq_base
+names(freq_mult) = rownames(profiles)
+
+# Severity Model - This is a log normal regression to predict log claim amounts on said factors
+fit_sev = glm(log(claim_amount) ~ gravity_level + psych_stress_index + 
+               experience_yrs + safety_training_index + hours_per_week + 
+               protective_gear_quality + occupation, 
+               data = work_comp_sev)
+summary(fit_sev)
+
+# Find common occupation
+mode_occ = names(sort(table(work_comp_sev$occupation), decreasing = TRUE))[1]
+baseline_sev = transform(baseline, occupation = mode_occ)
+profiles_sev = cbind(profiles, occupation = mode_occ)
+
+# Severity Multipliers
+m_base = as.numeric(predict(fit_sev, newdata = baseline_sev))
+m_sys  = as.numeric(predict(fit_sev, newdata = profiles_sev))
+sev_mult = exp(m_sys - m_base)
+names(sev_mult) = rownames(profiles)
+```
+
+```{r}
+simulate_system = function(E_period, f_mult, s_mult, n_sims = 30000, seed = 42) {
+  set.seed(seed)
+  
+  # Return NAs if multipliers are broken
+  if(any(is.na(c(f_mult, s_mult)))) return(c(Expected_Loss = NA, VaR_99 = NA, TVaR_99 = NA))
+  
+  mu_period_adj = as.numeric(lambda_hat_nb) * f_mult * E_period
+  
+  agg = numeric(n_sims)
+  for (i in seq_len(n_sims)) {
+    N = rnbinom(1, size = theta_nb, mu = mu_period_adj)
+    
+    if (N == 0) {
+      agg[i] = 0
+    } else {
+      # Use log-normal parameters from your previous step
+      vals = rlnorm(N, meanlog = mu + log(s_mult), sdlog = sigma)
+      # Capping the extreme values
+      vals[is.infinite(vals)] = 1e8
+      agg[i] = sum(vals)
+    }
+  }
+  
+  # Calculate value at ris kmetrics with na.rm to ensure stability
+  VaR_99  = as.numeric(quantile(agg, 0.99, na.rm = TRUE, names = FALSE))
+  TVaR_99 = if(is.na(VaR_99)) NA else mean(agg[agg >= VaR_99], na.rm = TRUE)
+  
+  c(Expected_Loss = mean(agg, na.rm = TRUE), VaR_99 = VaR_99, TVaR_99 = TVaR_99)
+}
+
+# Run simulation for all three planets solar systems or whateer they are
+E_total = sum(work_comp_pol$exposure_pol)
+
+out = rbind(
+  Bayesia         = simulate_system(E_total, freq_mult["Bayesia"],          sev_mult["Bayesia"]),
+  Orion             = simulate_system(E_total, freq_mult["Orion"],             sev_mult["Orion"]),
+  Helionis_Cluster = simulate_system(E_total, freq_mult["Helionis_Cluster"], sev_mult["Helionis_Cluster"])
+)
+
+# This essentially displays the VaR and TVaR measures for each solar system in regards to my claim..
+print(out)
+```
 
 
 
+## This is for each existing planetary system, a between groups analysis 
 
+```{r}
+# Building profiles based on the three given solar systems, we are doing the median to capture the middle of each level
+profiles = rbind(
+  Epsilon = data.frame(
+    gravity_level           = get_planet_med("Epsilon", "gravity_level"),
+    psych_stress_index      = get_planet_med("Epsilon", "psych_stress_index"),
+    experience_yrs          = get_planet_med("Epsilon", "experience_yrs"),
+    safety_training_index   = get_planet_med("Epsilon", "safety_training_index"),
+    hours_per_week          = get_planet_med("Epsilon", "hours_per_week"),
+    protective_gear_quality = get_planet_med("Epsilon", "protective_gear_quality"),
+    exposure_pol            = 1
+  ),
+  Zeta = data.frame(
+    gravity_level           = get_planet_med("Zeta", "gravity_level"),
+    psych_stress_index      = get_planet_med("Zeta", "psych_stress_index"),
+    experience_yrs          = get_planet_med("Zeta", "experience_yrs"),
+    safety_training_index   = get_planet_med("Zeta", "safety_training_index"),
+    hours_per_week          = get_planet_med("Zeta", "hours_per_week"),
+    protective_gear_quality = get_planet_med("Zeta", "protective_gear_quality"),
+    exposure_pol            = 1
+  ),
+  Helionis_Cluster = data.frame(
+    gravity_level           = get_planet_med("Helionis Cluster", "gravity_level"),
+    psych_stress_index      = get_planet_med("Helionis Cluster", "psych_stress_index"),
+    experience_yrs          = get_planet_med("Helionis Cluster", "experience_yrs"),
+    safety_training_index   = get_planet_med("Helionis Cluster", "safety_training_index"),
+    hours_per_week          = get_planet_med("Helionis Cluster", "hours_per_week"),
+    protective_gear_quality = get_planet_med("Helionis Cluster", "protective_gear_quality"),
+    exposure_pol            = 1
+  )
+)
 
+# Baseline Profile (Overall Median), this will give us how to compare the overal middle to each levels planetary middle value
+baseline = data.frame(
+  gravity_level           = median(work_comp_freq$gravity_level, na.rm=TRUE),
+  psych_stress_index      = median(work_comp_freq$psych_stress_index, na.rm=TRUE),
+  experience_yrs          = median(work_comp_freq$experience_yrs, na.rm=TRUE),
+  safety_training_index   = median(work_comp_freq$safety_training_index, na.rm=TRUE),
+  hours_per_week          = median(work_comp_freq$hours_per_week, na.rm=TRUE),
+  protective_gear_quality = median(work_comp_freq$protective_gear_quality, na.rm=TRUE),
+  exposure_pol            = 1
+)
+```
 
+```{r}
+# Does the frequency of claims change (no, we want it to be = for analysis )
+freq_base = as.numeric(predict(fit_nb, newdata = baseline, type = "response"))
+freq_sys  = as.numeric(predict(fit_nb, newdata = profiles, type = "response"))
+freq_mult = freq_sys / freq_base
+names(freq_mult) = rownames(profiles)
 
+# Severity Model - This is a log normal regression to predict log claim amounts on said factors
+fit_sev = glm(log(claim_amount) ~ gravity_level + psych_stress_index + 
+               experience_yrs + safety_training_index + hours_per_week + 
+               protective_gear_quality + occupation, 
+               data = work_comp_sev)
+summary(fit_sev)
 
+# Find common occupation
+mode_occ = names(sort(table(work_comp_sev$occupation), decreasing = TRUE))[1]
+baseline_sev = transform(baseline, occupation = mode_occ)
+profiles_sev = cbind(profiles, occupation = mode_occ)
+
+# Severity Multipliers
+m_base = as.numeric(predict(fit_sev, newdata = baseline_sev))
+m_sys  = as.numeric(predict(fit_sev, newdata = profiles_sev))
+sev_mult = exp(m_sys - m_base)
+names(sev_mult) = rownames(profiles)
+```
+
+```{r}
+simulate_system = function(E_period, f_mult, s_mult, n_sims = 30000, seed = 42) {
+  set.seed(seed)
+  
+  # Return NAs if multipliers are broken
+  if(any(is.na(c(f_mult, s_mult)))) return(c(Expected_Loss = NA, VaR_99 = NA, TVaR_99 = NA))
+  
+  mu_period_adj = as.numeric(lambda_hat_nb) * f_mult * E_period
+  
+  agg = numeric(n_sims)
+  for (i in seq_len(n_sims)) {
+    N = rnbinom(1, size = theta_nb, mu = mu_period_adj)
+    
+    if (N == 0) {
+      agg[i] = 0
+    } else {
+      # Use log-normal parameters from your previous step
+      vals = rlnorm(N, meanlog = mu + log(s_mult), sdlog = sigma)
+      # Capping the extreme values
+      vals[is.infinite(vals)] = 1e8
+      agg[i] = sum(vals)
+    }
+  }
+  
+  # Calculate value at ris kmetrics with na.rm to ensure stability
+  VaR_99  = as.numeric(quantile(agg, 0.99, na.rm = TRUE, names = FALSE))
+  TVaR_99 = if(is.na(VaR_99)) NA else mean(agg[agg >= VaR_99], na.rm = TRUE)
+  
+  c(Expected_Loss = mean(agg, na.rm = TRUE), VaR_99 = VaR_99, TVaR_99 = TVaR_99)
+}
+
+# Run simulation for all three planets solar systems or whateer they are
+E_total = sum(work_comp_pol$exposure_pol)
+
+out = rbind(
+  Epsilon          = simulate_system(E_total, freq_mult["Epsilon"],          sev_mult["Epsilon"]),
+  Zeta             = simulate_system(E_total, freq_mult["Zeta"],             sev_mult["Zeta"]),
+  Helionis_Cluster = simulate_system(E_total, freq_mult["Helionis_Cluster"], sev_mult["Helionis_Cluster"])
+)
+
+# This essentially displays the VaR and TVaR measures for each solar system in regards to my claim..
+print(out)
+```

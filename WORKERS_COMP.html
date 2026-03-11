@@ -112,7 +112,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="combing-rows-and-filtering" class="level2">
 <h2 class="anchored" data-anchor-id="combing-rows-and-filtering">Combing Rows and Filtering</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>work_comp_pol <span class="ot">&lt;-</span> work_comp_freq <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>work_comp_pol <span class="ot">=</span> work_comp_freq <span class="sc">%&gt;%</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(exposure), <span class="sc">!</span><span class="fu">is.na</span>(claim_count), exposure <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(policy_id) <span class="sc">%&gt;%</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
@@ -127,19 +127,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected number of claims, normalized by exposure</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>lambda_hat <span class="ot">&lt;-</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>claims_pol) <span class="sc">/</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>exposure_pol)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>lambda_hat <span class="ot">=</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>claims_pol) <span class="sc">/</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>exposure_pol)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>lambda_hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.02820411</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># expected number of claims per policy with NO exposure adjustment.</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>mean_claims <span class="ot">&lt;-</span> <span class="fu">mean</span>(work_comp_pol<span class="sc">$</span>claims_pol)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>var_claims  <span class="ot">&lt;-</span> <span class="fu">var</span>(work_comp_pol<span class="sc">$</span>claims_pol)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>mean_claims <span class="ot">=</span> <span class="fu">mean</span>(work_comp_pol<span class="sc">$</span>claims_pol)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>var_claims  <span class="ot">=</span> <span class="fu">var</span>(work_comp_pol<span class="sc">$</span>claims_pol)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># variance normalized by expected claims per policy (dispersion)</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>dispersion_ratio <span class="ot">&lt;-</span> var_claims <span class="sc">/</span> mean_claims</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>dispersion_ratio <span class="ot">=</span> var_claims <span class="sc">/</span> mean_claims</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">mean_claims =</span> mean_claims, <span class="at">var_claims =</span> var_claims, <span class="at">dispersion_ratio =</span> dispersion_ratio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     mean_claims       var_claims dispersion_ratio 
@@ -154,19 +154,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># grab the claim amount $$, and filter it</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> work_comp_sev<span class="sc">$</span>claim_amount</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(x)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> x[<span class="fu">is.finite</span>(x) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(x) <span class="sc">&amp;</span> x <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> work_comp_sev<span class="sc">$</span>claim_amount</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">as.numeric</span>(x)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> x[<span class="fu">is.finite</span>(x) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(x) <span class="sc">&amp;</span> x <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># distribution parameters for claim amount</span></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>mu    <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">log</span>(x))</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">sd</span>(<span class="fu">log</span>(x))</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>mu    <span class="ot">=</span> <span class="fu">mean</span>(<span class="fu">log</span>(x))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">=</span> <span class="fu">sd</span>(<span class="fu">log</span>(x))</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># this is lognormal mean and median</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>mean_sev   <span class="ot">&lt;-</span> <span class="fu">exp</span>(mu <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>sigma<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>median_sev <span class="ot">&lt;-</span> <span class="fu">exp</span>(mu)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>mean_sev   <span class="ot">=</span> <span class="fu">exp</span>(mu <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>sigma<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>median_sev <span class="ot">=</span> <span class="fu">exp</span>(mu)</span>
 <span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">meanlog =</span> mu, <span class="at">sdlog =</span> sigma, <span class="at">mean_severity =</span> mean_sev, <span class="at">median_severity =</span> median_sev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -200,6 +200,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 </div>
+</div>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(x), <span class="fu">aes</span>(<span class="at">sample =</span> <span class="fu">log</span>(x))) <span class="sc">+</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>(<span class="at">color =</span> <span class="st">"steelblue"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
@@ -209,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="WORKERS_COMP_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="WORKERS_COMP_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -220,16 +222,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lognormal log-likelihood + AIC</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>loglik_logn <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">dlnorm</span>(x, <span class="at">meanlog =</span> mu, <span class="at">sdlog =</span> sigma, <span class="at">log =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>aic_logn <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>loglik_logn</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>loglik_logn <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">dlnorm</span>(x, <span class="at">meanlog =</span> mu, <span class="at">sdlog =</span> sigma, <span class="at">log =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>aic_logn <span class="ot">=</span> <span class="dv">2</span><span class="sc">*</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>loglik_logn</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Gamma MOM estimates + log-likelihood + AIC </span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">mean</span>(x); v <span class="ot">&lt;-</span> <span class="fu">var</span>(x)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>shape_hat <span class="ot">&lt;-</span> m<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> v</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>rate_hat  <span class="ot">&lt;-</span> m <span class="sc">/</span> v</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">mean</span>(x); v <span class="ot">=</span> <span class="fu">var</span>(x)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>shape_hat <span class="ot">=</span> m<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> v</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>rate_hat  <span class="ot">=</span> m <span class="sc">/</span> v</span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>loglik_gam <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">dgamma</span>(x, <span class="at">shape =</span> shape_hat, <span class="at">rate =</span> rate_hat, <span class="at">log =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>aic_gam <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>loglik_gam</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>loglik_gam <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">dgamma</span>(x, <span class="at">shape =</span> shape_hat, <span class="at">rate =</span> rate_hat, <span class="at">log =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>aic_gam <span class="ot">=</span> <span class="dv">2</span><span class="sc">*</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>loglik_gam</span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
 <span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Lognormal"</span>, <span class="st">"Gamma"</span>),</span>
@@ -247,8 +249,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="tail-summaries" class="level2">
 <h2 class="anchored" data-anchor-id="tail-summaries">Tail Summaries</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>q95 <span class="ot">&lt;-</span> <span class="fu">qlnorm</span>(<span class="fl">0.95</span>, <span class="at">meanlog =</span> mu, <span class="at">sdlog =</span> sigma)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>q99 <span class="ot">&lt;-</span> <span class="fu">qlnorm</span>(<span class="fl">0.99</span>, <span class="at">meanlog =</span> mu, <span class="at">sdlog =</span> sigma)</span>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>q95 <span class="ot">=</span> <span class="fu">qlnorm</span>(<span class="fl">0.95</span>, <span class="at">meanlog =</span> mu, <span class="at">sdlog =</span> sigma)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>q99 <span class="ot">=</span> <span class="fu">qlnorm</span>(<span class="fl">0.99</span>, <span class="at">meanlog =</span> mu, <span class="at">sdlog =</span> sigma)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">pander</span>(<span class="fu">c</span>(<span class="at">q95_logn =</span> q95, <span class="at">q99_logn =</span> q99))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -306,7 +308,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># chat-gpt</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>delta_aic <span class="ot">&lt;-</span> aic_gam <span class="sc">-</span> aic_logn</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>delta_aic <span class="ot">=</span> aic_gam <span class="sc">-</span> aic_logn</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(</span>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"- **Baseline frequency (lambda_hat):** "</span>, <span class="fu">round</span>(lambda_hat, <span class="dv">4</span>), <span class="st">" claims per exposure-year</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -322,6 +324,501 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 - **Severity model:** Lognormal (meanlog = 7.807, sdlog = 1.322)
 - **Mean severity (Lognormal):** $5,892
 - **AIC comparison (Gamma - Lognormal):** ΔAIC = 2513 (positive favors Lognormal)</code></pre>
+</div>
+</div>
+</section>
+<section id="part-2" class="level2">
+<h2 class="anchored" data-anchor-id="part-2">Part 2</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># r = theta, p = tehta /(theta + mu)</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>fit_nb <span class="ot">=</span> <span class="fu">glm.nb</span>(claims_pol <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(exposure_pol)), <span class="at">data =</span> work_comp_pol)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in dpois(y, mu, log = TRUE): non-integer x = 11.248512</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_nb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm.nb(formula = claims_pol ~ 1 + offset(log(exposure_pol)), 
+    data = work_comp_pol, init.theta = 11.89920545, link = log)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -3.56796    0.02389  -149.4   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(11.8992) family taken to be 1)
+
+    Null deviance: 2598.5  on 2852  degrees of freedom
+Residual deviance: 2598.5  on 2852  degrees of freedom
+AIC: 5496
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  11.90 
+          Std. Err.:  4.99 
+
+ 2 x log-likelihood:  -5491.977 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># intercept</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>lambda_hat_nb <span class="ot">=</span> <span class="fu">exp</span>(<span class="fu">coef</span>(fit_nb)[<span class="dv">1</span>])  </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># r </span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>theta_nb <span class="ot">=</span> fit_nb<span class="sc">$</span>theta</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">lambda_hat_nb =</span> lambda_hat_nb, <span class="at">theta_nb =</span> theta_nb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>lambda_hat_nb.(Intercept)                  theta_nb 
+               0.02821329               11.89920545 </code></pre>
+</div>
+</div>
+</section>
+<section id="time-to-use-your-severity-and-freq-distributions-to-run-some-simulations-we-are-using-these-simulations-to-see-what-the-expected-losses-will-be-on-average-in-the-worst-stress-years-as-well-as-the-worst-1-of-years.-this-is-what-var-and-tvar-is" class="level2">
+<h2 class="anchored" data-anchor-id="time-to-use-your-severity-and-freq-distributions-to-run-some-simulations-we-are-using-these-simulations-to-see-what-the-expected-losses-will-be-on-average-in-the-worst-stress-years-as-well-as-the-worst-1-of-years.-this-is-what-var-and-tvar-is">Time to use your severity and freq distributions to run some simulations!! We are using these simulations to see what the expected losses will be on average in the worst stress years as well as the worst 1% of years. (This is what Var and TVaR is)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># total exposure</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>Exposure_period <span class="ot">=</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>exposure_pol)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># r times the total exposure, this is akin finding the rate for the entire company, instead of one policy</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>mu_period <span class="ot">=</span> <span class="fu">as.numeric</span>(lambda_hat_nb) <span class="sc">*</span> Exposure_period</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>mu_period</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1918.873</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># this is the rate for the entire company, multiplied by the mean claim cost</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>expected_aggregate <span class="ot">=</span> <span class="fu">as.numeric</span>(lambda_hat_nb) <span class="sc">*</span> Exposure_period <span class="sc">*</span> mean_sev</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>expected_aggregate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 11306379</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for reproducing it</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>n_sims <span class="ot">=</span> <span class="dv">30000</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co"># total losses</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>agg_losses <span class="ot">=</span> <span class="fu">numeric</span>(n_sims)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co"># run 30k times</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_sims)) {</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># this creates a vector of frequencies (similating data) ie: 34 calims this year 47 nect</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">=</span> <span class="fu">rnbinom</span>(<span class="dv">1</span>, <span class="at">size =</span> theta_nb, <span class="at">mu =</span> mu_period)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (N <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    agg_losses[i] <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># makes the severity, ie a cost for a claim</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>    agg_losses[i] <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">rlnorm</span>(N, <span class="at">meanlog =</span> mu, <span class="at">sdlog =</span> sigma))</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a><span class="co"># average of all 30k years of claims</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>mean_L  <span class="ot">=</span> <span class="fu">mean</span>(agg_losses)</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a><span class="co"># value at risk (at what cost does the worst 99% start at)</span></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>VaR_99  <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">quantile</span>(agg_losses, <span class="fl">0.99</span>, <span class="at">names =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a><span class="co"># mean value at risk (average cost of the worst 1%)</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>TVaR_99 <span class="ot">=</span> <span class="fu">mean</span>(agg_losses[agg_losses <span class="sc">&gt;=</span> VaR_99])</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">sim_mean =</span> mean_L, <span class="at">theo_mean =</span> expected_aggregate, <span class="at">ratio =</span> mean_L<span class="sc">/</span>expected_aggregate,</span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">VaR_99 =</span> VaR_99, <span class="at">TVaR_99 =</span> TVaR_99)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    sim_mean    theo_mean        ratio       VaR_99      TVaR_99 
+1.129711e+07 1.130638e+07 9.991804e-01 2.058755e+07 2.217427e+07 </code></pre>
+</div>
+</div>
+</section>
+<section id="fitting-modelssimulation-for-each-solar-system" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-modelssimulation-for-each-solar-system">Fitting models/simulation for each solar system</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean the solar_system names in both datasets</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>work_comp_freq<span class="sc">$</span>solar_system_clean <span class="ot">=</span> <span class="fu">sub</span>(<span class="st">"_.*"</span>, <span class="st">""</span>, work_comp_freq<span class="sc">$</span>solar_system)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>work_comp_sev<span class="sc">$</span>solar_system_clean  <span class="ot">=</span> <span class="fu">sub</span>(<span class="st">"_.*"</span>, <span class="st">""</span>, work_comp_sev<span class="sc">$</span>solar_system)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify the cleaning - should only see Epsilon, Zeta, Helionis Cluster, and maybe NA</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(work_comp_freq<span class="sc">$</span>solar_system_clean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Epsilon"          "Zeta"             "Helionis Cluster" NA                </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper function to get the median for each column inputted, for a specific cleaned planet name cause they gave us crappy data there</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>get_planet_med <span class="ot">=</span> <span class="cf">function</span>(planet_name, col_name) {</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  val <span class="ot">=</span> work_comp_freq <span class="sc">%&gt;%</span> </span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(solar_system_clean <span class="sc">==</span> planet_name) <span class="sc">%&gt;%</span> </span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(col_name)</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">median</span>(val, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>get_perc <span class="ot">=</span> <span class="cf">function</span>(col_name, perc) {</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>  val <span class="ot">=</span> work_comp_freq <span class="sc">%&gt;%</span> </span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(col_name)</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">quantile</span>(val, <span class="at">probs =</span> perc, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>profiles <span class="ot">=</span> <span class="fu">rbind</span>(</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bayesia =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">gravity_level           =</span> <span class="fu">get_perc</span>(<span class="st">"gravity_level"</span>, .<span class="dv">85</span>),</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">psych_stress_index      =</span> <span class="fu">get_perc</span>(<span class="st">"psych_stress_index"</span>, .<span class="dv">75</span>),</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">experience_yrs          =</span> <span class="fu">get_perc</span>(<span class="st">"experience_yrs"</span>, .<span class="dv">6</span>),</span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">safety_training_index   =</span> <span class="fu">get_perc</span>(<span class="st">"safety_training_index"</span>, .<span class="dv">7</span>),</span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">hours_per_week          =</span> <span class="fu">get_perc</span>(<span class="st">"hours_per_week"</span>, .<span class="dv">5</span>),</span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">protective_gear_quality =</span> <span class="fu">get_perc</span>(<span class="st">"protective_gear_quality"</span>, .<span class="dv">9</span>),</span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">Orion =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">gravity_level           =</span> <span class="fu">get_perc</span>(<span class="st">"gravity_level"</span>, .<span class="dv">45</span>),</span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">psych_stress_index      =</span> <span class="fu">get_perc</span>(<span class="st">"psych_stress_index"</span>, .<span class="dv">8</span>),</span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">experience_yrs          =</span> <span class="fu">get_perc</span>(<span class="st">"experience_yrs"</span>, .<span class="dv">3</span>),</span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">safety_training_index   =</span> <span class="fu">get_perc</span>(<span class="st">"safety_training_index"</span>, .<span class="dv">5</span>),</span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">hours_per_week          =</span> <span class="fu">get_perc</span>(<span class="st">"hours_per_week"</span>, .<span class="dv">65</span>),</span>
+<span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">protective_gear_quality =</span> <span class="fu">get_perc</span>(<span class="st">"protective_gear_quality"</span>, .<span class="dv">6</span>),</span>
+<span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">Helionis_Cluster =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb37-35"><a href="#cb37-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">gravity_level           =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"gravity_level"</span>),</span>
+<span id="cb37-36"><a href="#cb37-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">psych_stress_index      =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"psych_stress_index"</span>),</span>
+<span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">experience_yrs          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"experience_yrs"</span>),</span>
+<span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">safety_training_index   =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"safety_training_index"</span>),</span>
+<span id="cb37-39"><a href="#cb37-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">hours_per_week          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"hours_per_week"</span>),</span>
+<span id="cb37-40"><a href="#cb37-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">protective_gear_quality =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"protective_gear_quality"</span>),</span>
+<span id="cb37-41"><a href="#cb37-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb37-42"><a href="#cb37-42" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-43"><a href="#cb37-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-44"><a href="#cb37-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-45"><a href="#cb37-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Baseline Profile (Overall Median), this will give us how to compare the overal middle to each levels planetary middle value</span></span>
+<span id="cb37-46"><a href="#cb37-46" aria-hidden="true" tabindex="-1"></a>baseline <span class="ot">=</span> <span class="fu">data.frame</span>(</span>
+<span id="cb37-47"><a href="#cb37-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">gravity_level           =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>gravity_level, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb37-48"><a href="#cb37-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">psych_stress_index      =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>psych_stress_index, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb37-49"><a href="#cb37-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">experience_yrs          =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>experience_yrs, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb37-50"><a href="#cb37-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">safety_training_index   =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>safety_training_index, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb37-51"><a href="#cb37-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">hours_per_week          =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>hours_per_week, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb37-52"><a href="#cb37-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">protective_gear_quality =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>protective_gear_quality, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb37-53"><a href="#cb37-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb37-54"><a href="#cb37-54" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Does the freq of claims change (noooo)</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>freq_base <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_nb, <span class="at">newdata =</span> baseline, <span class="at">type =</span> <span class="st">"response"</span>))</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>freq_sys  <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_nb, <span class="at">newdata =</span> profiles, <span class="at">type =</span> <span class="st">"response"</span>))</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>freq_mult <span class="ot">=</span> freq_sys <span class="sc">/</span> freq_base</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(freq_mult) <span class="ot">=</span> <span class="fu">rownames</span>(profiles)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Severity Model - This is a log normal regression to predict log claim amounts on said factors</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>fit_sev <span class="ot">=</span> <span class="fu">glm</span>(<span class="fu">log</span>(claim_amount) <span class="sc">~</span> gravity_level <span class="sc">+</span> psych_stress_index <span class="sc">+</span> </span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>               experience_yrs <span class="sc">+</span> safety_training_index <span class="sc">+</span> hours_per_week <span class="sc">+</span> </span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>               protective_gear_quality <span class="sc">+</span> occupation, </span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> work_comp_sev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in log(claim_amount): NaNs produced</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = log(claim_amount) ~ gravity_level + psych_stress_index + 
+    experience_yrs + safety_training_index + hours_per_week + 
+    protective_gear_quality + occupation, data = work_comp_sev)
+
+Coefficients:
+                                         Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                             7.7021828  0.1969931  39.099  &lt; 2e-16
+gravity_level                          -0.0333605  0.0638133  -0.523 0.601187
+psych_stress_index                      0.2269874  0.0204656  11.091  &lt; 2e-16
+experience_yrs                         -0.0041828  0.0045719  -0.915 0.360364
+safety_training_index                  -0.0077812  0.0112692  -0.690 0.489972
+hours_per_week                         -0.0001969  0.0021562  -0.091 0.927253
+protective_gear_quality                -0.1412055  0.0220118  -6.415 1.78e-10
+occupationDrill Operator                0.1467395  0.1328041   1.105 0.269330
+occupationDrill Operator_???1587       -0.1521982  1.2635589  -0.120 0.904138
+occupationDrill Operator_???2905       -0.6348634  1.2619851  -0.503 0.614976
+occupationEngineer                      0.6046734  0.1443823   4.188 2.94e-05
+occupationExecutive                     0.9813702  0.4263716   2.302 0.021462
+occupationMaintenance Staff            -0.0642413  0.1825462  -0.352 0.724939
+occupationManager                       0.5524791  0.1618945   3.413 0.000657
+occupationPlanetary Operations          0.1162862  0.1593239   0.730 0.465559
+occupationPlanetary Operations_???1020  3.6842496  1.2618209   2.920 0.003544
+occupationPlanetary Operations_???2101  0.9593185  1.2620426   0.760 0.447271
+occupationSafety Officer                0.1387229  0.1572749   0.882 0.377867
+occupationScientist                     0.6228313  0.1902922   3.273 0.001083
+occupationSpacecraft Operator           0.1111143  0.1918286   0.579 0.562498
+occupationTechnology Officer            0.2628403  0.1735209   1.515 0.130004
+                                          
+(Intercept)                            ***
+gravity_level                             
+psych_stress_index                     ***
+experience_yrs                            
+safety_training_index                     
+hours_per_week                            
+protective_gear_quality                ***
+occupationDrill Operator                  
+occupationDrill Operator_???1587          
+occupationDrill Operator_???2905          
+occupationEngineer                     ***
+occupationExecutive                    *  
+occupationMaintenance Staff               
+occupationManager                      ***
+occupationPlanetary Operations            
+occupationPlanetary Operations_???1020 ** 
+occupationPlanetary Operations_???2101    
+occupationSafety Officer                  
+occupationScientist                    ** 
+occupationSpacecraft Operator             
+occupationTechnology Officer              
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for gaussian family taken to be 1.5751)
+
+    Null deviance: 3333.3  on 1903  degrees of freedom
+Residual deviance: 2965.9  on 1883  degrees of freedom
+  (13 observations deleted due to missingness)
+AIC: 6291.2
+
+Number of Fisher Scoring iterations: 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find common occupation</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>mode_occ <span class="ot">=</span> <span class="fu">names</span>(<span class="fu">sort</span>(<span class="fu">table</span>(work_comp_sev<span class="sc">$</span>occupation), <span class="at">decreasing =</span> <span class="cn">TRUE</span>))[<span class="dv">1</span>]</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>baseline_sev <span class="ot">=</span> <span class="fu">transform</span>(baseline, <span class="at">occupation =</span> mode_occ)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>profiles_sev <span class="ot">=</span> <span class="fu">cbind</span>(profiles, <span class="at">occupation =</span> mode_occ)</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Severity Multipliers</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>m_base <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_sev, <span class="at">newdata =</span> baseline_sev))</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>m_sys  <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_sev, <span class="at">newdata =</span> profiles_sev))</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>sev_mult <span class="ot">=</span> <span class="fu">exp</span>(m_sys <span class="sc">-</span> m_base)</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(sev_mult) <span class="ot">=</span> <span class="fu">rownames</span>(profiles)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>simulate_system <span class="ot">=</span> <span class="cf">function</span>(E_period, f_mult, s_mult, <span class="at">n_sims =</span> <span class="dv">30000</span>, <span class="at">seed =</span> <span class="dv">42</span>) {</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Return NAs if multipliers are broken</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">any</span>(<span class="fu">is.na</span>(<span class="fu">c</span>(f_mult, s_mult)))) <span class="fu">return</span>(<span class="fu">c</span>(<span class="at">Expected_Loss =</span> <span class="cn">NA</span>, <span class="at">VaR_99 =</span> <span class="cn">NA</span>, <span class="at">TVaR_99 =</span> <span class="cn">NA</span>))</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  mu_period_adj <span class="ot">=</span> <span class="fu">as.numeric</span>(lambda_hat_nb) <span class="sc">*</span> f_mult <span class="sc">*</span> E_period</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  agg <span class="ot">=</span> <span class="fu">numeric</span>(n_sims)</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_sims)) {</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">=</span> <span class="fu">rnbinom</span>(<span class="dv">1</span>, <span class="at">size =</span> theta_nb, <span class="at">mu =</span> mu_period_adj)</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (N <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>      agg[i] <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Use log-normal parameters from your previous step</span></span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>      vals <span class="ot">=</span> <span class="fu">rlnorm</span>(N, <span class="at">meanlog =</span> mu <span class="sc">+</span> <span class="fu">log</span>(s_mult), <span class="at">sdlog =</span> sigma)</span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Capping the extreme values</span></span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>      vals[<span class="fu">is.infinite</span>(vals)] <span class="ot">=</span> <span class="fl">1e8</span></span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>      agg[i] <span class="ot">=</span> <span class="fu">sum</span>(vals)</span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate value at ris kmetrics with na.rm to ensure stability</span></span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>  VaR_99  <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">quantile</span>(agg, <span class="fl">0.99</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">names =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>  TVaR_99 <span class="ot">=</span> <span class="cf">if</span>(<span class="fu">is.na</span>(VaR_99)) <span class="cn">NA</span> <span class="cf">else</span> <span class="fu">mean</span>(agg[agg <span class="sc">&gt;=</span> VaR_99], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">Expected_Loss =</span> <span class="fu">mean</span>(agg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">VaR_99 =</span> VaR_99, <span class="at">TVaR_99 =</span> TVaR_99)</span>
+<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-30"><a href="#cb43-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-31"><a href="#cb43-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Run simulation for all three planets solar systems or whateer they are</span></span>
+<span id="cb43-32"><a href="#cb43-32" aria-hidden="true" tabindex="-1"></a>E_total <span class="ot">=</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>exposure_pol)</span>
+<span id="cb43-33"><a href="#cb43-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-34"><a href="#cb43-34" aria-hidden="true" tabindex="-1"></a>out <span class="ot">=</span> <span class="fu">rbind</span>(</span>
+<span id="cb43-35"><a href="#cb43-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bayesia         =</span> <span class="fu">simulate_system</span>(E_total, freq_mult[<span class="st">"Bayesia"</span>],          sev_mult[<span class="st">"Bayesia"</span>]),</span>
+<span id="cb43-36"><a href="#cb43-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">Orion             =</span> <span class="fu">simulate_system</span>(E_total, freq_mult[<span class="st">"Orion"</span>],             sev_mult[<span class="st">"Orion"</span>]),</span>
+<span id="cb43-37"><a href="#cb43-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">Helionis_Cluster =</span> <span class="fu">simulate_system</span>(E_total, freq_mult[<span class="st">"Helionis_Cluster"</span>], sev_mult[<span class="st">"Helionis_Cluster"</span>])</span>
+<span id="cb43-38"><a href="#cb43-38" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-39"><a href="#cb43-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-40"><a href="#cb43-40" aria-hidden="true" tabindex="-1"></a><span class="co"># This essentially displays the VaR and TVaR measures for each solar system in regards to my claim..</span></span>
+<span id="cb43-41"><a href="#cb43-41" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(out)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 Expected_Loss   VaR_99  TVaR_99
+Bayesia               12034010 21930450 23620677
+Orion                 12420300 22634414 24378897
+Helionis_Cluster      13006438 23702576 25529385</code></pre>
+</div>
+</div>
+</section>
+<section id="this-is-for-each-existing-planetary-system-a-between-groups-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="this-is-for-each-existing-planetary-system-a-between-groups-analysis">This is for each existing planetary system, a between groups analysis</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Building profiles based on the three given solar systems, we are doing the median to capture the middle of each level</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>profiles <span class="ot">=</span> <span class="fu">rbind</span>(</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Epsilon =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">gravity_level           =</span> <span class="fu">get_planet_med</span>(<span class="st">"Epsilon"</span>, <span class="st">"gravity_level"</span>),</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">psych_stress_index      =</span> <span class="fu">get_planet_med</span>(<span class="st">"Epsilon"</span>, <span class="st">"psych_stress_index"</span>),</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">experience_yrs          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Epsilon"</span>, <span class="st">"experience_yrs"</span>),</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">safety_training_index   =</span> <span class="fu">get_planet_med</span>(<span class="st">"Epsilon"</span>, <span class="st">"safety_training_index"</span>),</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">hours_per_week          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Epsilon"</span>, <span class="st">"hours_per_week"</span>),</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">protective_gear_quality =</span> <span class="fu">get_planet_med</span>(<span class="st">"Epsilon"</span>, <span class="st">"protective_gear_quality"</span>),</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Zeta =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">gravity_level           =</span> <span class="fu">get_planet_med</span>(<span class="st">"Zeta"</span>, <span class="st">"gravity_level"</span>),</span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">psych_stress_index      =</span> <span class="fu">get_planet_med</span>(<span class="st">"Zeta"</span>, <span class="st">"psych_stress_index"</span>),</span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">experience_yrs          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Zeta"</span>, <span class="st">"experience_yrs"</span>),</span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">safety_training_index   =</span> <span class="fu">get_planet_med</span>(<span class="st">"Zeta"</span>, <span class="st">"safety_training_index"</span>),</span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">hours_per_week          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Zeta"</span>, <span class="st">"hours_per_week"</span>),</span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">protective_gear_quality =</span> <span class="fu">get_planet_med</span>(<span class="st">"Zeta"</span>, <span class="st">"protective_gear_quality"</span>),</span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb45-20"><a href="#cb45-20" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb45-21"><a href="#cb45-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">Helionis_Cluster =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb45-22"><a href="#cb45-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">gravity_level           =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"gravity_level"</span>),</span>
+<span id="cb45-23"><a href="#cb45-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">psych_stress_index      =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"psych_stress_index"</span>),</span>
+<span id="cb45-24"><a href="#cb45-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">experience_yrs          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"experience_yrs"</span>),</span>
+<span id="cb45-25"><a href="#cb45-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">safety_training_index   =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"safety_training_index"</span>),</span>
+<span id="cb45-26"><a href="#cb45-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">hours_per_week          =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"hours_per_week"</span>),</span>
+<span id="cb45-27"><a href="#cb45-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">protective_gear_quality =</span> <span class="fu">get_planet_med</span>(<span class="st">"Helionis Cluster"</span>, <span class="st">"protective_gear_quality"</span>),</span>
+<span id="cb45-28"><a href="#cb45-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb45-29"><a href="#cb45-29" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb45-30"><a href="#cb45-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb45-31"><a href="#cb45-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-32"><a href="#cb45-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Baseline Profile (Overall Median), this will give us how to compare the overal middle to each levels planetary middle value</span></span>
+<span id="cb45-33"><a href="#cb45-33" aria-hidden="true" tabindex="-1"></a>baseline <span class="ot">=</span> <span class="fu">data.frame</span>(</span>
+<span id="cb45-34"><a href="#cb45-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">gravity_level           =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>gravity_level, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb45-35"><a href="#cb45-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">psych_stress_index      =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>psych_stress_index, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb45-36"><a href="#cb45-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">experience_yrs          =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>experience_yrs, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb45-37"><a href="#cb45-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">safety_training_index   =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>safety_training_index, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb45-38"><a href="#cb45-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">hours_per_week          =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>hours_per_week, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb45-39"><a href="#cb45-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">protective_gear_quality =</span> <span class="fu">median</span>(work_comp_freq<span class="sc">$</span>protective_gear_quality, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb45-40"><a href="#cb45-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">exposure_pol            =</span> <span class="dv">1</span></span>
+<span id="cb45-41"><a href="#cb45-41" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Does the frequency of claims change (no, we want it to be = for analysis )</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>freq_base <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_nb, <span class="at">newdata =</span> baseline, <span class="at">type =</span> <span class="st">"response"</span>))</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>freq_sys  <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_nb, <span class="at">newdata =</span> profiles, <span class="at">type =</span> <span class="st">"response"</span>))</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>freq_mult <span class="ot">=</span> freq_sys <span class="sc">/</span> freq_base</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(freq_mult) <span class="ot">=</span> <span class="fu">rownames</span>(profiles)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Severity Model - This is a log normal regression to predict log claim amounts on said factors</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>fit_sev <span class="ot">=</span> <span class="fu">glm</span>(<span class="fu">log</span>(claim_amount) <span class="sc">~</span> gravity_level <span class="sc">+</span> psych_stress_index <span class="sc">+</span> </span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>               experience_yrs <span class="sc">+</span> safety_training_index <span class="sc">+</span> hours_per_week <span class="sc">+</span> </span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>               protective_gear_quality <span class="sc">+</span> occupation, </span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> work_comp_sev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in log(claim_amount): NaNs produced</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = log(claim_amount) ~ gravity_level + psych_stress_index + 
+    experience_yrs + safety_training_index + hours_per_week + 
+    protective_gear_quality + occupation, data = work_comp_sev)
+
+Coefficients:
+                                         Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                             7.7021828  0.1969931  39.099  &lt; 2e-16
+gravity_level                          -0.0333605  0.0638133  -0.523 0.601187
+psych_stress_index                      0.2269874  0.0204656  11.091  &lt; 2e-16
+experience_yrs                         -0.0041828  0.0045719  -0.915 0.360364
+safety_training_index                  -0.0077812  0.0112692  -0.690 0.489972
+hours_per_week                         -0.0001969  0.0021562  -0.091 0.927253
+protective_gear_quality                -0.1412055  0.0220118  -6.415 1.78e-10
+occupationDrill Operator                0.1467395  0.1328041   1.105 0.269330
+occupationDrill Operator_???1587       -0.1521982  1.2635589  -0.120 0.904138
+occupationDrill Operator_???2905       -0.6348634  1.2619851  -0.503 0.614976
+occupationEngineer                      0.6046734  0.1443823   4.188 2.94e-05
+occupationExecutive                     0.9813702  0.4263716   2.302 0.021462
+occupationMaintenance Staff            -0.0642413  0.1825462  -0.352 0.724939
+occupationManager                       0.5524791  0.1618945   3.413 0.000657
+occupationPlanetary Operations          0.1162862  0.1593239   0.730 0.465559
+occupationPlanetary Operations_???1020  3.6842496  1.2618209   2.920 0.003544
+occupationPlanetary Operations_???2101  0.9593185  1.2620426   0.760 0.447271
+occupationSafety Officer                0.1387229  0.1572749   0.882 0.377867
+occupationScientist                     0.6228313  0.1902922   3.273 0.001083
+occupationSpacecraft Operator           0.1111143  0.1918286   0.579 0.562498
+occupationTechnology Officer            0.2628403  0.1735209   1.515 0.130004
+                                          
+(Intercept)                            ***
+gravity_level                             
+psych_stress_index                     ***
+experience_yrs                            
+safety_training_index                     
+hours_per_week                            
+protective_gear_quality                ***
+occupationDrill Operator                  
+occupationDrill Operator_???1587          
+occupationDrill Operator_???2905          
+occupationEngineer                     ***
+occupationExecutive                    *  
+occupationMaintenance Staff               
+occupationManager                      ***
+occupationPlanetary Operations            
+occupationPlanetary Operations_???1020 ** 
+occupationPlanetary Operations_???2101    
+occupationSafety Officer                  
+occupationScientist                    ** 
+occupationSpacecraft Operator             
+occupationTechnology Officer              
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for gaussian family taken to be 1.5751)
+
+    Null deviance: 3333.3  on 1903  degrees of freedom
+Residual deviance: 2965.9  on 1883  degrees of freedom
+  (13 observations deleted due to missingness)
+AIC: 6291.2
+
+Number of Fisher Scoring iterations: 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find common occupation</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>mode_occ <span class="ot">=</span> <span class="fu">names</span>(<span class="fu">sort</span>(<span class="fu">table</span>(work_comp_sev<span class="sc">$</span>occupation), <span class="at">decreasing =</span> <span class="cn">TRUE</span>))[<span class="dv">1</span>]</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>baseline_sev <span class="ot">=</span> <span class="fu">transform</span>(baseline, <span class="at">occupation =</span> mode_occ)</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>profiles_sev <span class="ot">=</span> <span class="fu">cbind</span>(profiles, <span class="at">occupation =</span> mode_occ)</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Severity Multipliers</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>m_base <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_sev, <span class="at">newdata =</span> baseline_sev))</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>m_sys  <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">predict</span>(fit_sev, <span class="at">newdata =</span> profiles_sev))</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>sev_mult <span class="ot">=</span> <span class="fu">exp</span>(m_sys <span class="sc">-</span> m_base)</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(sev_mult) <span class="ot">=</span> <span class="fu">rownames</span>(profiles)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>simulate_system <span class="ot">=</span> <span class="cf">function</span>(E_period, f_mult, s_mult, <span class="at">n_sims =</span> <span class="dv">30000</span>, <span class="at">seed =</span> <span class="dv">42</span>) {</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Return NAs if multipliers are broken</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">any</span>(<span class="fu">is.na</span>(<span class="fu">c</span>(f_mult, s_mult)))) <span class="fu">return</span>(<span class="fu">c</span>(<span class="at">Expected_Loss =</span> <span class="cn">NA</span>, <span class="at">VaR_99 =</span> <span class="cn">NA</span>, <span class="at">TVaR_99 =</span> <span class="cn">NA</span>))</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  mu_period_adj <span class="ot">=</span> <span class="fu">as.numeric</span>(lambda_hat_nb) <span class="sc">*</span> f_mult <span class="sc">*</span> E_period</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>  agg <span class="ot">=</span> <span class="fu">numeric</span>(n_sims)</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_sims)) {</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">=</span> <span class="fu">rnbinom</span>(<span class="dv">1</span>, <span class="at">size =</span> theta_nb, <span class="at">mu =</span> mu_period_adj)</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (N <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>      agg[i] <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Use log-normal parameters from your previous step</span></span>
+<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a>      vals <span class="ot">=</span> <span class="fu">rlnorm</span>(N, <span class="at">meanlog =</span> mu <span class="sc">+</span> <span class="fu">log</span>(s_mult), <span class="at">sdlog =</span> sigma)</span>
+<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Capping the extreme values</span></span>
+<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a>      vals[<span class="fu">is.infinite</span>(vals)] <span class="ot">=</span> <span class="fl">1e8</span></span>
+<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a>      agg[i] <span class="ot">=</span> <span class="fu">sum</span>(vals)</span>
+<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb51-23"><a href="#cb51-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb51-24"><a href="#cb51-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate value at ris kmetrics with na.rm to ensure stability</span></span>
+<span id="cb51-25"><a href="#cb51-25" aria-hidden="true" tabindex="-1"></a>  VaR_99  <span class="ot">=</span> <span class="fu">as.numeric</span>(<span class="fu">quantile</span>(agg, <span class="fl">0.99</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">names =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb51-26"><a href="#cb51-26" aria-hidden="true" tabindex="-1"></a>  TVaR_99 <span class="ot">=</span> <span class="cf">if</span>(<span class="fu">is.na</span>(VaR_99)) <span class="cn">NA</span> <span class="cf">else</span> <span class="fu">mean</span>(agg[agg <span class="sc">&gt;=</span> VaR_99], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb51-27"><a href="#cb51-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb51-28"><a href="#cb51-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">Expected_Loss =</span> <span class="fu">mean</span>(agg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">VaR_99 =</span> VaR_99, <span class="at">TVaR_99 =</span> TVaR_99)</span>
+<span id="cb51-29"><a href="#cb51-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb51-30"><a href="#cb51-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-31"><a href="#cb51-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Run simulation for all three planets solar systems or whateer they are</span></span>
+<span id="cb51-32"><a href="#cb51-32" aria-hidden="true" tabindex="-1"></a>E_total <span class="ot">=</span> <span class="fu">sum</span>(work_comp_pol<span class="sc">$</span>exposure_pol)</span>
+<span id="cb51-33"><a href="#cb51-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-34"><a href="#cb51-34" aria-hidden="true" tabindex="-1"></a>out <span class="ot">=</span> <span class="fu">rbind</span>(</span>
+<span id="cb51-35"><a href="#cb51-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">Epsilon          =</span> <span class="fu">simulate_system</span>(E_total, freq_mult[<span class="st">"Epsilon"</span>],          sev_mult[<span class="st">"Epsilon"</span>]),</span>
+<span id="cb51-36"><a href="#cb51-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">Zeta             =</span> <span class="fu">simulate_system</span>(E_total, freq_mult[<span class="st">"Zeta"</span>],             sev_mult[<span class="st">"Zeta"</span>]),</span>
+<span id="cb51-37"><a href="#cb51-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">Helionis_Cluster =</span> <span class="fu">simulate_system</span>(E_total, freq_mult[<span class="st">"Helionis_Cluster"</span>], sev_mult[<span class="st">"Helionis_Cluster"</span>])</span>
+<span id="cb51-38"><a href="#cb51-38" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb51-39"><a href="#cb51-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-40"><a href="#cb51-40" aria-hidden="true" tabindex="-1"></a><span class="co"># This essentially displays the VaR and TVaR measures for each solar system in regards to my claim..</span></span>
+<span id="cb51-41"><a href="#cb51-41" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(out)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 Expected_Loss   VaR_99  TVaR_99
+Epsilon                9887599 18018890 19407645
+Zeta                   9648265 17582733 18937872
+Helionis_Cluster      13006438 23702576 25529385</code></pre>
 </div>
 </div>
 </section>
