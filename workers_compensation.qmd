@@ -617,7 +617,6 @@ work_comp_sev_clean <- work_comp_sev %>%
 
 stress_threshold <- quantile(work_comp_sev_clean$psych_stress_index, 0.75)
 
-# Now run the plot and the correlation test
 ggplot(work_comp_sev_clean, aes(x = psych_stress_index, y = claim_amount)) +
   geom_point(aes(color = psych_stress_index >= stress_threshold), alpha = 0.3) +
   geom_smooth(method = "lm", color = "darkred") +
@@ -631,7 +630,6 @@ ggplot(work_comp_sev_clean, aes(x = psych_stress_index, y = claim_amount)) +
        color = "Category") +
   theme_minimal()
 
-# Also add na.use to the correlation test to handle those NAs
 cor_stress <- cor.test(work_comp_sev$psych_stress_index, log(work_comp_sev$claim_amount), 
                        use = "complete.obs")
 
@@ -753,67 +751,96 @@ print(exp_groups)
 
 
 ```{r}
-# agregate Severity Data to Policy Level first (Avoids many-to-many join)
-# We take the mean of indices for policies with multiple claims
+#  Aggregate Severity Data to Policy Level (Avoids many-to-many join)
 pol_sev_features <- work_comp_sev_clean %>%
   group_by(policy_id) %>%
   summarise(
     avg_gear = mean(protective_gear_quality, na.rm = TRUE),
     avg_stress = mean(psych_stress_index, na.rm = TRUE),
-    # Use the first occupation listed for the policy
     occ_clean = first(occupation_clean),
     .groups = "drop"
   )
 
-# Join and Price
+#  Set Solvency Parameters
+Base_Rate = 450.00
+helionis_limit = 25000 # Implementing a $25k claim cap to stabilize Helionis cause helionis sucks
+
+# Join, Clean, and Price
 work_comp_pricing_final <- work_comp_freq %>%
   left_join(pol_sev_features, by = "policy_id") %>%
   mutate(
-    # Fill NAs using the global medians we calculated in Part 1/2
+    # Fill NAs using global medians
     avg_gear = replace_na(avg_gear, median(work_comp_sev_clean$protective_gear_quality, na.rm = TRUE)),
     avg_stress = replace_na(avg_stress, median(work_comp_sev_clean$psych_stress_index, na.rm = TRUE)),
     occ_clean = replace_na(occ_clean, "Other"),
     solar_system_clean = replace_na(solar_system_clean, "Unknown")
   ) %>%
   mutate(
-    # ---  GEAR CREDIT (Proven by -0.1488 Cor) ---
+    # --- ROUTE 1: GEAR CREDIT (-0.1488 Cor) ---
     m1 = ifelse(avg_gear >= 4.0, 0.88, 1.00),
     
-    # ---  STRESS SURCHARGE (Proven by 0.2441 Cor) ---
+    # --- ROUTE 2: STRESS SURCHARGE (0.2441 Cor) ---
     m2 = ifelse(avg_stress >= 7.5, 1.15, 1.00),
     
-    # ---  OCC SUBLIMIT (Proven by Executive/Manager Tail Risk) ---
+    # --- ROUTE 3: OCC SUBLIMIT (Capping High-Risk Tails) ---
     m3 = ifelse(occ_clean %in% c("Executive", "Manager"), 0.95, 1.00),
     
-    # ---  TERRITORY (Proven by Helionis Cluster TVaR) ---
-    m4 = ifelse(solar_system_clean == "Helionis", 1.23, 1.00),
+    # --- ROUTE 4: TERRITORY (Helionis Specific Loading) ---
+    # We use 3.75 here to reach solvency unless a hard limit is applied in policy terms
+    m4_solvency = ifelse(solar_system_clean == "Helionis Cluster", 3.75, 1.00),
     
-    # --- EXPERIENCE (Proven by Mid-Level U-Shape) ---
+    # --- ROUTE 5: EXPERIENCE (U-Shape Adjustment) ---
     m5 = case_when(
-      experience_yrs > 2 & experience_yrs <= 10 ~ 0.90,  # Mid-level discount
-      experience_yrs <= 2 ~ 1.10,                        # Rookie surcharge
-      TRUE ~ 1.05                                        # Veteran surcharge
+      experience_yrs > 2 & experience_yrs <= 10 ~ 0.90, # Mid-level discount
+      experience_yrs <= 2 ~ 1.10,                      # Rookie surcharge
+      TRUE ~ 1.05                                      # Veteran surcharge
     ),
     
-    # Base Rate: $150 (Derived fromlambda_hat and expected loss)
-    Base_Rate = 150.00,
-    
     # FINAL PREMIUM CALCULATION
-    Final_Premium = round(exposure * Base_Rate * m1 * m2 * m3 * m4 * m5, 2)
+    Final_Premium = round(exposure * Base_Rate * m1 * m2 * m3 * m4_solvency * m5, 2)
   )
 
-# 3. Summary Table to verify it matches your Monte Carlo "out" values
+# Summary Table
 pricing_summary <- work_comp_pricing_final %>%
   group_by(solar_system_clean) %>%
   summarise(
     Policies = n(),
     Total_Exposure = sum(exposure, na.rm = TRUE),
     Total_Premium = sum(Final_Premium, na.rm = TRUE),
-    Avg_Premium = mean(Final_Premium / exposure, na.rm = TRUE)
+    Avg_Premium = mean(Final_Premium / exposure, na.rm = TRUE),
+    .groups = "drop"
   )
 
 print(pricing_summary)
 
+# Validation Report (Loss Ratio Check)
+validation_report <- pricing_summary %>%
+  filter(solar_system_clean %in% c("Epsilon", "Helionis Cluster", "Zeta")) %>%
+  mutate(
+    Simulated_Loss = case_when(
+      solar_system_clean == "Helionis Cluster" ~ out["Helionis_Cluster", "Expected_Loss"],
+      solar_system_clean == "Zeta" ~ out["Orion", "Expected_Loss"],
+      TRUE ~ out["Bayesia", "Expected_Loss"]
+    ),
+    Expected_Loss_Ratio = round(Simulated_Loss / Total_Premium, 4)
+  )
+
+print(validation_report)
 ```
 
+
+
+
+```{r}
+# FINAL PORTFOLIO CHECK
+portfolio_total <- validation_report %>%
+  summarise(
+    Total_Premium_All = sum(Total_Premium),
+    Total_Loss_All = sum(Simulated_Loss),
+    Portfolio_Loss_Ratio = round(Total_Loss_All / Total_Premium_All, 4)
+  )
+
+print(portfolio_total)
+
+```
 
