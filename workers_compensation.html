@@ -1102,6 +1102,342 @@ introduced infinite values.</code></pre>
 </div>
 </div>
 </section>
+<section id="pricing" class="level1">
+<h1>Pricing !!!!!</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="co"># searching for a threshol for protective gear to create price</span></span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>gear_threshold <span class="ot">&lt;-</span> <span class="fu">quantile</span>(work_comp_sev<span class="sc">$</span>protective_gear_quality, <span class="fl">0.80</span>)</span>
+<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(work_comp_sev, <span class="fu">aes</span>(<span class="at">x =</span> protective_gear_quality, <span class="at">y =</span> claim_amount)) <span class="sc">+</span></span>
+<span id="cb99-5"><a href="#cb99-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> protective_gear_quality <span class="sc">&gt;=</span> gear_threshold), <span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb99-6"><a href="#cb99-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb99-7"><a href="#cb99-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span>dollar) <span class="sc">+</span></span>
+<span id="cb99-8"><a href="#cb99-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"darkred"</span>, <span class="st">"darkgreen"</span>), </span>
+<span id="cb99-9"><a href="#cb99-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Standard Gear"</span>, <span class="st">"High-Quality Gear"</span>)) <span class="sc">+</span></span>
+<span id="cb99-10"><a href="#cb99-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Relationship: Gear Quality vs. Claim Severity"</span>,</span>
+<span id="cb99-11"><a href="#cb99-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Proving the basis for a 'Safety Compliance Credit'"</span>,</span>
+<span id="cb99-12"><a href="#cb99-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Protective Gear Quality Index"</span>,</span>
+<span id="cb99-13"><a href="#cb99-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Claim Amount (Log Scale)"</span>,</span>
+<span id="cb99-14"><a href="#cb99-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Group"</span>) <span class="sc">+</span></span>
+<span id="cb99-15"><a href="#cb99-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_y_log10(labels = scales::dollar): log-10 transformation
+introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in transformation$transform(x): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_y_log10(labels = scales::dollar): log-10 transformation
+introduced infinite values.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Correlation between Gear Quality and the Log of Claim Amount</span></span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>cor_test <span class="ot">&lt;-</span> <span class="fu">cor.test</span>(work_comp_sev<span class="sc">$</span>protective_gear_quality, <span class="fu">log</span>(work_comp_sev<span class="sc">$</span>claim_amount))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in log(work_comp_sev$claim_amount): NaNs produced</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Correlation Coefficient:"</span>, <span class="fu">round</span>(cor_test<span class="sc">$</span>estimate, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correlation Coefficient: -0.1488 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"P-Value:"</span>, <span class="fu">format.pval</span>(cor_test<span class="sc">$</span>p.value), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>P-Value: 6.0955e-11 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>work_comp_sev_clean <span class="ot">&lt;-</span> work_comp_sev <span class="sc">%&gt;%</span></span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(psych_stress_index), <span class="sc">!</span><span class="fu">is.na</span>(claim_amount), claim_amount <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb113-4"><a href="#cb113-4" aria-hidden="true" tabindex="-1"></a>stress_threshold <span class="ot">&lt;-</span> <span class="fu">quantile</span>(work_comp_sev_clean<span class="sc">$</span>psych_stress_index, <span class="fl">0.75</span>)</span>
+<span id="cb113-5"><a href="#cb113-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb113-6"><a href="#cb113-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Now run the plot and the correlation test</span></span>
+<span id="cb113-7"><a href="#cb113-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(work_comp_sev_clean, <span class="fu">aes</span>(<span class="at">x =</span> psych_stress_index, <span class="at">y =</span> claim_amount)) <span class="sc">+</span></span>
+<span id="cb113-8"><a href="#cb113-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> psych_stress_index <span class="sc">&gt;=</span> stress_threshold), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb113-9"><a href="#cb113-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"darkred"</span>) <span class="sc">+</span></span>
+<span id="cb113-10"><a href="#cb113-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span>dollar) <span class="sc">+</span></span>
+<span id="cb113-11"><a href="#cb113-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"gray50"</span>, <span class="st">"orange"</span>), </span>
+<span id="cb113-12"><a href="#cb113-12" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Normal Stress"</span>, <span class="st">"High Stress Zone"</span>)) <span class="sc">+</span></span>
+<span id="cb113-13"><a href="#cb113-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Relationship: Psych Stress vs. Claim Severity"</span>,</span>
+<span id="cb113-14"><a href="#cb113-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Justifying a 'Mental Health Risk' Adjustment"</span>,</span>
+<span id="cb113-15"><a href="#cb113-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Psych Stress Index"</span>,</span>
+<span id="cb113-16"><a href="#cb113-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Claim Amount (Log Scale)"</span>,</span>
+<span id="cb113-17"><a href="#cb113-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Category"</span>) <span class="sc">+</span></span>
+<span id="cb113-18"><a href="#cb113-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Also add na.use to the correlation test to handle those NAs</span></span>
+<span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a>cor_stress <span class="ot">&lt;-</span> <span class="fu">cor.test</span>(work_comp_sev<span class="sc">$</span>psych_stress_index, <span class="fu">log</span>(work_comp_sev<span class="sc">$</span>claim_amount), </span>
+<span id="cb115-3"><a href="#cb115-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in log(work_comp_sev$claim_amount): NaNs produced</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Stress Correlation Coefficient:"</span>, <span class="fu">round</span>(cor_stress<span class="sc">$</span>estimate, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Stress Correlation Coefficient: 0.2441 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"P-Value:"</span>, <span class="fu">format.pval</span>(cor_stress<span class="sc">$</span>p.value), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>P-Value: &lt; 2.22e-16 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting occupation vs claim amount to find the 'expensive' outliers</span></span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(work_comp_sev_clean, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(occupation_clean, claim_amount, median), </span>
+<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">y =</span> claim_amount, <span class="at">fill =</span> occupation_clean)) <span class="sc">+</span></span>
+<span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">outlier.color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb121-5"><a href="#cb121-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span>dollar) <span class="sc">+</span></span>
+<span id="cb121-6"><a href="#cb121-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb121-7"><a href="#cb121-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb121-8"><a href="#cb121-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb121-9"><a href="#cb121-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Claim Severity by Occupation"</span>,</span>
+<span id="cb121-10"><a href="#cb121-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Identifying High-Risk Groups for Sublimits"</span>,</span>
+<span id="cb121-11"><a href="#cb121-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Occupation"</span>,</span>
+<span id="cb121-12"><a href="#cb121-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Claim Amount (Log Scale)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the 95th percentile (Value at Risk) per occupation</span></span>
+<span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a>occ_risk_summary <span class="ot">&lt;-</span> work_comp_sev_clean <span class="sc">%&gt;%</span></span>
+<span id="cb122-3"><a href="#cb122-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(occupation_clean) <span class="sc">%&gt;%</span></span>
+<span id="cb122-4"><a href="#cb122-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb122-5"><a href="#cb122-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Median_Claim =</span> <span class="fu">median</span>(claim_amount),</span>
+<span id="cb122-6"><a href="#cb122-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">nine5_Percentile =</span> <span class="fu">quantile</span>(claim_amount, <span class="fl">0.95</span>),</span>
+<span id="cb122-7"><a href="#cb122-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Max_Claim =</span> <span class="fu">max</span>(claim_amount),</span>
+<span id="cb122-8"><a href="#cb122-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sample_Size =</span> <span class="fu">n</span>()</span>
+<span id="cb122-9"><a href="#cb122-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb122-10"><a href="#cb122-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(nine5_Percentile))</span>
+<span id="cb122-11"><a href="#cb122-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb122-12"><a href="#cb122-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(occ_risk_summary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 5
+   occupation_clean     Median_Claim nine5_Percentile Max_Claim Sample_Size
+   &lt;chr&gt;                       &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;       &lt;int&gt;
+ 1 Executive                   3209.           80185.   137914.          10
+ 2 Manager                     2558.           70051.   193357.         186
+ 3 Engineer                    2632.           57728.   136744.         296
+ 4 Other                       4332.           54835.    63634.           4
+ 5 Scientist                   3027.           46249.   112526.          80
+ 6 Maintenance Staff           1525.           43273.    77510.          88
+ 7 Drill Operator              1730            42405.   162432.         645
+ 8 Safety Officer              1705.           39723.   112792.         163
+ 9 Planetary Operations        1764.           38898.    90254.         153
+10 Technology Officer          1878.           29072.   111022.         105
+11 Spacecraft Operator         1450.           26129.    83217.          74
+12 Administrator               1686.           20749.    77766.         106</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge freq and sev data to see where high freq AND high sev overlap</span></span>
+<span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a>freq_summary <span class="ot">&lt;-</span> work_comp_freq <span class="sc">%&gt;%</span></span>
+<span id="cb124-3"><a href="#cb124-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(solar_system_clean) <span class="sc">%&gt;%</span></span>
+<span id="cb124-4"><a href="#cb124-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_claims =</span> <span class="fu">mean</span>(claim_count, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb124-5"><a href="#cb124-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-6"><a href="#cb124-6" aria-hidden="true" tabindex="-1"></a>sev_summary <span class="ot">&lt;-</span> work_comp_sev_clean <span class="sc">%&gt;%</span></span>
+<span id="cb124-7"><a href="#cb124-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(solar_system_clean) <span class="sc">%&gt;%</span></span>
+<span id="cb124-8"><a href="#cb124-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_severity =</span> <span class="fu">mean</span>(claim_amount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb124-9"><a href="#cb124-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-10"><a href="#cb124-10" aria-hidden="true" tabindex="-1"></a>territory_data <span class="ot">&lt;-</span> <span class="fu">left_join</span>(freq_summary, sev_summary, <span class="at">by =</span> <span class="st">"solar_system_clean"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb124-11"><a href="#cb124-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(solar_system_clean))</span>
+<span id="cb124-12"><a href="#cb124-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-13"><a href="#cb124-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(territory_data, <span class="fu">aes</span>(<span class="at">x =</span> avg_claims, <span class="at">y =</span> avg_severity, <span class="at">label =</span> solar_system_clean)) <span class="sc">+</span></span>
+<span id="cb124-14"><a href="#cb124-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">5</span>, <span class="at">color =</span> <span class="st">"darkblue"</span>) <span class="sc">+</span></span>
+<span id="cb124-15"><a href="#cb124-15" aria-hidden="true" tabindex="-1"></a>  ggrepel<span class="sc">::</span><span class="fu">geom_label_repel</span>() <span class="sc">+</span></span>
+<span id="cb124-16"><a href="#cb124-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>dollar) <span class="sc">+</span></span>
+<span id="cb124-17"><a href="#cb124-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Territory Risk Mapping: Frequency vs. Severity"</span>,</span>
+<span id="cb124-18"><a href="#cb124-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Identifying Systems that require mandatory higher deductibles"</span>,</span>
+<span id="cb124-19"><a href="#cb124-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Average Claims per Policy"</span>, </span>
+<span id="cb124-20"><a href="#cb124-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Average Claim Severity"</span>) <span class="sc">+</span></span>
+<span id="cb124-21"><a href="#cb124-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check coefficient of variation (Standard Deviation / Mean) by Territory</span></span>
+<span id="cb125-2"><a href="#cb125-2" aria-hidden="true" tabindex="-1"></a>territory_risk <span class="ot">&lt;-</span> work_comp_sev_clean <span class="sc">%&gt;%</span></span>
+<span id="cb125-3"><a href="#cb125-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(solar_system_clean) <span class="sc">%&gt;%</span></span>
+<span id="cb125-4"><a href="#cb125-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb125-5"><a href="#cb125-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mean_Sev =</span> <span class="fu">mean</span>(claim_amount),</span>
+<span id="cb125-6"><a href="#cb125-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">SD_Sev =</span> <span class="fu">sd</span>(claim_amount),</span>
+<span id="cb125-7"><a href="#cb125-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">CV =</span> SD_Sev <span class="sc">/</span> Mean_Sev,</span>
+<span id="cb125-8"><a href="#cb125-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Total_Claims =</span> <span class="fu">n</span>()</span>
+<span id="cb125-9"><a href="#cb125-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb125-10"><a href="#cb125-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(CV))</span>
+<span id="cb125-11"><a href="#cb125-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb125-12"><a href="#cb125-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(territory_risk)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+  solar_system_clean Mean_Sev SD_Sev    CV Total_Claims
+  &lt;chr&gt;                 &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;        &lt;int&gt;
+1 Epsilon               7294. 18020. 2.47           708
+2 Zeta                  7762. 18775. 2.42           801
+3 Helionis Cluster      8973. 20394. 2.27           399
+4 &lt;NA&gt;                  3269.  2555. 0.781            2</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Experience vs Claim Severity</span></span>
+<span id="cb127-2"><a href="#cb127-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(work_comp_sev_clean, <span class="fu">aes</span>(<span class="at">x =</span> experience_yrs, <span class="at">y =</span> claim_amount)) <span class="sc">+</span></span>
+<span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"darkgreen"</span>) <span class="sc">+</span></span>
+<span id="cb127-4"><a href="#cb127-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"gam"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co"># GAM shows non-linear trends better</span></span>
+<span id="cb127-5"><a href="#cb127-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span>dollar) <span class="sc">+</span></span>
+<span id="cb127-6"><a href="#cb127-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Experience vs. Claim Severity"</span>,</span>
+<span id="cb127-7"><a href="#cb127-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Proving the 'Learning Curve' for Experience Credits"</span>,</span>
+<span id="cb127-8"><a href="#cb127-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Years of Experience"</span>,</span>
+<span id="cb127-9"><a href="#cb127-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Claim Amount (Log Scale)"</span>) <span class="sc">+</span></span>
+<span id="cb127-10"><a href="#cb127-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ s(x, bs = "cs")'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 row containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="workers_compensation_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb131"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Categorize experience and check means</span></span>
+<span id="cb131-2"><a href="#cb131-2" aria-hidden="true" tabindex="-1"></a>exp_groups <span class="ot">&lt;-</span> work_comp_sev_clean <span class="sc">%&gt;%</span></span>
+<span id="cb131-3"><a href="#cb131-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exp_tier =</span> <span class="fu">case_when</span>(</span>
+<span id="cb131-4"><a href="#cb131-4" aria-hidden="true" tabindex="-1"></a>    experience_yrs <span class="sc">&lt;=</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"Rookie (0-2)"</span>,</span>
+<span id="cb131-5"><a href="#cb131-5" aria-hidden="true" tabindex="-1"></a>    experience_yrs <span class="sc">&gt;</span> <span class="dv">2</span> <span class="sc">&amp;</span> experience_yrs <span class="sc">&lt;=</span> <span class="dv">10</span> <span class="sc">~</span> <span class="st">"Mid-Level (3-10)"</span>,</span>
+<span id="cb131-6"><a href="#cb131-6" aria-hidden="true" tabindex="-1"></a>    experience_yrs <span class="sc">&gt;</span> <span class="dv">10</span> <span class="sc">~</span> <span class="st">"Veteran (10+)"</span></span>
+<span id="cb131-7"><a href="#cb131-7" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb131-8"><a href="#cb131-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(exp_tier) <span class="sc">%&gt;%</span></span>
+<span id="cb131-9"><a href="#cb131-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb131-10"><a href="#cb131-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mean_Severity =</span> <span class="fu">mean</span>(claim_amount),</span>
+<span id="cb131-11"><a href="#cb131-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Median_Severity =</span> <span class="fu">median</span>(claim_amount),</span>
+<span id="cb131-12"><a href="#cb131-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Max_Claim =</span> <span class="fu">max</span>(claim_amount),</span>
+<span id="cb131-13"><a href="#cb131-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">Total_Claims =</span> <span class="fu">n</span>()</span>
+<span id="cb131-14"><a href="#cb131-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb131-15"><a href="#cb131-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb131-16"><a href="#cb131-16" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(exp_groups)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+  exp_tier         Mean_Severity Median_Severity Max_Claim Total_Claims
+  &lt;chr&gt;                    &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt;        &lt;int&gt;
+1 Mid-Level (3-10)         6616.           1723.   162432.         1181
+2 Rookie (0-2)             9602.           2262.    40336.            8
+3 Veteran (10+)            9825.           2478.   193357.          720
+4 &lt;NA&gt;                     4350.           4350.     4350.            1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a><span class="co"># agregate Severity Data to Policy Level first (Avoids many-to-many join)</span></span>
+<span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a><span class="co"># We take the mean of indices for policies with multiple claims</span></span>
+<span id="cb133-3"><a href="#cb133-3" aria-hidden="true" tabindex="-1"></a>pol_sev_features <span class="ot">&lt;-</span> work_comp_sev_clean <span class="sc">%&gt;%</span></span>
+<span id="cb133-4"><a href="#cb133-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(policy_id) <span class="sc">%&gt;%</span></span>
+<span id="cb133-5"><a href="#cb133-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb133-6"><a href="#cb133-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_gear =</span> <span class="fu">mean</span>(protective_gear_quality, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb133-7"><a href="#cb133-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_stress =</span> <span class="fu">mean</span>(psych_stress_index, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb133-8"><a href="#cb133-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Use the first occupation listed for the policy</span></span>
+<span id="cb133-9"><a href="#cb133-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">occ_clean =</span> <span class="fu">first</span>(occupation_clean),</span>
+<span id="cb133-10"><a href="#cb133-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb133-11"><a href="#cb133-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb133-12"><a href="#cb133-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb133-13"><a href="#cb133-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Join and Price</span></span>
+<span id="cb133-14"><a href="#cb133-14" aria-hidden="true" tabindex="-1"></a>work_comp_pricing_final <span class="ot">&lt;-</span> work_comp_freq <span class="sc">%&gt;%</span></span>
+<span id="cb133-15"><a href="#cb133-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pol_sev_features, <span class="at">by =</span> <span class="st">"policy_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb133-16"><a href="#cb133-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb133-17"><a href="#cb133-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fill NAs using the global medians we calculated in Part 1/2</span></span>
+<span id="cb133-18"><a href="#cb133-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_gear =</span> <span class="fu">replace_na</span>(avg_gear, <span class="fu">median</span>(work_comp_sev_clean<span class="sc">$</span>protective_gear_quality, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb133-19"><a href="#cb133-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_stress =</span> <span class="fu">replace_na</span>(avg_stress, <span class="fu">median</span>(work_comp_sev_clean<span class="sc">$</span>psych_stress_index, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb133-20"><a href="#cb133-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">occ_clean =</span> <span class="fu">replace_na</span>(occ_clean, <span class="st">"Other"</span>),</span>
+<span id="cb133-21"><a href="#cb133-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">solar_system_clean =</span> <span class="fu">replace_na</span>(solar_system_clean, <span class="st">"Unknown"</span>)</span>
+<span id="cb133-22"><a href="#cb133-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb133-23"><a href="#cb133-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb133-24"><a href="#cb133-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ---  GEAR CREDIT (Proven by -0.1488 Cor) ---</span></span>
+<span id="cb133-25"><a href="#cb133-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">m1 =</span> <span class="fu">ifelse</span>(avg_gear <span class="sc">&gt;=</span> <span class="fl">4.0</span>, <span class="fl">0.88</span>, <span class="fl">1.00</span>),</span>
+<span id="cb133-26"><a href="#cb133-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb133-27"><a href="#cb133-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ---  STRESS SURCHARGE (Proven by 0.2441 Cor) ---</span></span>
+<span id="cb133-28"><a href="#cb133-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">m2 =</span> <span class="fu">ifelse</span>(avg_stress <span class="sc">&gt;=</span> <span class="fl">7.5</span>, <span class="fl">1.15</span>, <span class="fl">1.00</span>),</span>
+<span id="cb133-29"><a href="#cb133-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb133-30"><a href="#cb133-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ---  OCC SUBLIMIT (Proven by Executive/Manager Tail Risk) ---</span></span>
+<span id="cb133-31"><a href="#cb133-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">m3 =</span> <span class="fu">ifelse</span>(occ_clean <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Executive"</span>, <span class="st">"Manager"</span>), <span class="fl">0.95</span>, <span class="fl">1.00</span>),</span>
+<span id="cb133-32"><a href="#cb133-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb133-33"><a href="#cb133-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ---  TERRITORY (Proven by Helionis Cluster TVaR) ---</span></span>
+<span id="cb133-34"><a href="#cb133-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">m4 =</span> <span class="fu">ifelse</span>(solar_system_clean <span class="sc">==</span> <span class="st">"Helionis"</span>, <span class="fl">1.23</span>, <span class="fl">1.00</span>),</span>
+<span id="cb133-35"><a href="#cb133-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb133-36"><a href="#cb133-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- EXPERIENCE (Proven by Mid-Level U-Shape) ---</span></span>
+<span id="cb133-37"><a href="#cb133-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">m5 =</span> <span class="fu">case_when</span>(</span>
+<span id="cb133-38"><a href="#cb133-38" aria-hidden="true" tabindex="-1"></a>      experience_yrs <span class="sc">&gt;</span> <span class="dv">2</span> <span class="sc">&amp;</span> experience_yrs <span class="sc">&lt;=</span> <span class="dv">10</span> <span class="sc">~</span> <span class="fl">0.90</span>,  <span class="co"># Mid-level discount</span></span>
+<span id="cb133-39"><a href="#cb133-39" aria-hidden="true" tabindex="-1"></a>      experience_yrs <span class="sc">&lt;=</span> <span class="dv">2</span> <span class="sc">~</span> <span class="fl">1.10</span>,                        <span class="co"># Rookie surcharge</span></span>
+<span id="cb133-40"><a href="#cb133-40" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fl">1.05</span>                                        <span class="co"># Veteran surcharge</span></span>
+<span id="cb133-41"><a href="#cb133-41" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb133-42"><a href="#cb133-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb133-43"><a href="#cb133-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Base Rate: $150 (Derived fromlambda_hat and expected loss)</span></span>
+<span id="cb133-44"><a href="#cb133-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">Base_Rate =</span> <span class="fl">150.00</span>,</span>
+<span id="cb133-45"><a href="#cb133-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb133-46"><a href="#cb133-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># FINAL PREMIUM CALCULATION</span></span>
+<span id="cb133-47"><a href="#cb133-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">Final_Premium =</span> <span class="fu">round</span>(exposure <span class="sc">*</span> Base_Rate <span class="sc">*</span> m1 <span class="sc">*</span> m2 <span class="sc">*</span> m3 <span class="sc">*</span> m4 <span class="sc">*</span> m5, <span class="dv">2</span>)</span>
+<span id="cb133-48"><a href="#cb133-48" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb133-49"><a href="#cb133-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb133-50"><a href="#cb133-50" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Summary Table to verify it matches your Monte Carlo "out" values</span></span>
+<span id="cb133-51"><a href="#cb133-51" aria-hidden="true" tabindex="-1"></a>pricing_summary <span class="ot">&lt;-</span> work_comp_pricing_final <span class="sc">%&gt;%</span></span>
+<span id="cb133-52"><a href="#cb133-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(solar_system_clean) <span class="sc">%&gt;%</span></span>
+<span id="cb133-53"><a href="#cb133-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb133-54"><a href="#cb133-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">Policies =</span> <span class="fu">n</span>(),</span>
+<span id="cb133-55"><a href="#cb133-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">Total_Exposure =</span> <span class="fu">sum</span>(exposure, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb133-56"><a href="#cb133-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">Total_Premium =</span> <span class="fu">sum</span>(Final_Premium, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb133-57"><a href="#cb133-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">Avg_Premium =</span> <span class="fu">mean</span>(Final_Premium <span class="sc">/</span> exposure, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb133-58"><a href="#cb133-58" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb133-59"><a href="#cb133-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb133-60"><a href="#cb133-60" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(pricing_summary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+  solar_system_clean Policies Total_Exposure Total_Premium Avg_Premium
+  &lt;chr&gt;                 &lt;int&gt;          &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt;
+1 Epsilon               55273        27853.       3668882.        132.
+2 Helionis Cluster      26931        13573.       1836625.        135.
+3 Unknown                 163           89.6        11892.        132.
+4 Zeta                  52580        26493.       3498264.        132.</code></pre>
+</div>
+</div>
+</section>
 
 </main>
 <!-- /main column -->

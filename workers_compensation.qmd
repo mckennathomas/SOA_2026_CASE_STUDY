@@ -576,3 +576,244 @@ left_join(freq_summary, sev_summary, by = "solar_system_clean") %>%
 ```
 
 
+
+
+# Pricing !!!!!
+
+```{r}
+# searching for a threshol for protective gear to create price
+gear_threshold <- quantile(work_comp_sev$protective_gear_quality, 0.80)
+
+ggplot(work_comp_sev, aes(x = protective_gear_quality, y = claim_amount)) +
+  geom_point(aes(color = protective_gear_quality >= gear_threshold), alpha = 0.4) +
+  geom_smooth(method = "lm", color = "black") +
+  scale_y_log10(labels = scales::dollar) +
+  scale_color_manual(values = c("darkred", "darkgreen"), 
+                     labels = c("Standard Gear", "High-Quality Gear")) +
+  labs(title = "Relationship: Gear Quality vs. Claim Severity",
+       subtitle = "Proving the basis for a 'Safety Compliance Credit'",
+       x = "Protective Gear Quality Index",
+       y = "Claim Amount (Log Scale)",
+       color = "Group") +
+  theme_minimal()
+
+# Correlation between Gear Quality and the Log of Claim Amount
+cor_test <- cor.test(work_comp_sev$protective_gear_quality, log(work_comp_sev$claim_amount))
+
+cat("Correlation Coefficient:", round(cor_test$estimate, 4), "\n")
+cat("P-Value:", format.pval(cor_test$p.value), "\n")
+
+```
+
+
+
+
+
+
+
+```{r}
+work_comp_sev_clean <- work_comp_sev %>%
+  filter(!is.na(psych_stress_index), !is.na(claim_amount), claim_amount > 0)
+
+stress_threshold <- quantile(work_comp_sev_clean$psych_stress_index, 0.75)
+
+# Now run the plot and the correlation test
+ggplot(work_comp_sev_clean, aes(x = psych_stress_index, y = claim_amount)) +
+  geom_point(aes(color = psych_stress_index >= stress_threshold), alpha = 0.3) +
+  geom_smooth(method = "lm", color = "darkred") +
+  scale_y_log10(labels = scales::dollar) +
+  scale_color_manual(values = c("gray50", "orange"), 
+                     labels = c("Normal Stress", "High Stress Zone")) +
+  labs(title = "Relationship: Psych Stress vs. Claim Severity",
+       subtitle = "Justifying a 'Mental Health Risk' Adjustment",
+       x = "Psych Stress Index",
+       y = "Claim Amount (Log Scale)",
+       color = "Category") +
+  theme_minimal()
+
+# Also add na.use to the correlation test to handle those NAs
+cor_stress <- cor.test(work_comp_sev$psych_stress_index, log(work_comp_sev$claim_amount), 
+                       use = "complete.obs")
+
+cat("Stress Correlation Coefficient:", round(cor_stress$estimate, 4), "\n")
+cat("P-Value:", format.pval(cor_stress$p.value), "\n")
+
+```
+
+
+
+```{r}
+# Plotting occupation vs claim amount to find the 'expensive' outliers
+ggplot(work_comp_sev_clean, aes(x = reorder(occupation_clean, claim_amount, median), 
+                               y = claim_amount, fill = occupation_clean)) +
+  geom_boxplot(alpha = 0.7, outlier.color = "red") +
+  scale_y_log10(labels = scales::dollar) +
+  coord_flip() +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  labs(title = "Claim Severity by Occupation",
+       subtitle = "Identifying High-Risk Groups for Sublimits",
+       x = "Occupation",
+       y = "Claim Amount (Log Scale)")
+
+
+# Calculate the 95th percentile (Value at Risk) per occupation
+occ_risk_summary <- work_comp_sev_clean %>%
+  group_by(occupation_clean) %>%
+  summarise(
+    Median_Claim = median(claim_amount),
+    nine5_Percentile = quantile(claim_amount, 0.95),
+    Max_Claim = max(claim_amount),
+    Sample_Size = n()
+  ) %>%
+  arrange(desc(nine5_Percentile))
+
+print(occ_risk_summary)
+
+```
+
+
+
+
+
+```{r}
+# Merge freq and sev data to see where high freq AND high sev overlap
+freq_summary <- work_comp_freq %>%
+  group_by(solar_system_clean) %>%
+  summarise(avg_claims = mean(claim_count, na.rm = TRUE), .groups = "drop")
+
+sev_summary <- work_comp_sev_clean %>%
+  group_by(solar_system_clean) %>%
+  summarise(avg_severity = mean(claim_amount, na.rm = TRUE), .groups = "drop")
+
+territory_data <- left_join(freq_summary, sev_summary, by = "solar_system_clean") %>%
+  filter(!is.na(solar_system_clean))
+
+ggplot(territory_data, aes(x = avg_claims, y = avg_severity, label = solar_system_clean)) +
+  geom_point(size = 5, color = "darkblue") +
+  ggrepel::geom_label_repel() +
+  scale_y_continuous(labels = scales::dollar) +
+  labs(title = "Territory Risk Mapping: Frequency vs. Severity",
+       subtitle = "Identifying Systems that require mandatory higher deductibles",
+       x = "Average Claims per Policy", 
+       y = "Average Claim Severity") +
+  theme_minimal()
+
+
+
+# Check coefficient of variation (Standard Deviation / Mean) by Territory
+territory_risk <- work_comp_sev_clean %>%
+  group_by(solar_system_clean) %>%
+  summarise(
+    Mean_Sev = mean(claim_amount),
+    SD_Sev = sd(claim_amount),
+    CV = SD_Sev / Mean_Sev,
+    Total_Claims = n()
+  ) %>%
+  arrange(desc(CV))
+
+print(territory_risk)
+```
+
+
+
+```{r}
+# Experience vs Claim Severity
+ggplot(work_comp_sev_clean, aes(x = experience_yrs, y = claim_amount)) +
+  geom_point(alpha = 0.2, color = "darkgreen") +
+  geom_smooth(method = "gam", color = "black") + # GAM shows non-linear trends better
+  scale_y_log10(labels = scales::dollar) +
+  labs(title = "Experience vs. Claim Severity",
+       subtitle = "Proving the 'Learning Curve' for Experience Credits",
+       x = "Years of Experience",
+       y = "Claim Amount (Log Scale)") +
+  theme_minimal()
+
+
+# Categorize experience and check means
+exp_groups <- work_comp_sev_clean %>%
+  mutate(exp_tier = case_when(
+    experience_yrs <= 2 ~ "Rookie (0-2)",
+    experience_yrs > 2 & experience_yrs <= 10 ~ "Mid-Level (3-10)",
+    experience_yrs > 10 ~ "Veteran (10+)"
+  )) %>%
+  group_by(exp_tier) %>%
+  summarise(
+    Mean_Severity = mean(claim_amount),
+    Median_Severity = median(claim_amount),
+    Max_Claim = max(claim_amount),
+    Total_Claims = n()
+  )
+
+print(exp_groups)
+
+```
+
+
+
+
+```{r}
+# agregate Severity Data to Policy Level first (Avoids many-to-many join)
+# We take the mean of indices for policies with multiple claims
+pol_sev_features <- work_comp_sev_clean %>%
+  group_by(policy_id) %>%
+  summarise(
+    avg_gear = mean(protective_gear_quality, na.rm = TRUE),
+    avg_stress = mean(psych_stress_index, na.rm = TRUE),
+    # Use the first occupation listed for the policy
+    occ_clean = first(occupation_clean),
+    .groups = "drop"
+  )
+
+# Join and Price
+work_comp_pricing_final <- work_comp_freq %>%
+  left_join(pol_sev_features, by = "policy_id") %>%
+  mutate(
+    # Fill NAs using the global medians we calculated in Part 1/2
+    avg_gear = replace_na(avg_gear, median(work_comp_sev_clean$protective_gear_quality, na.rm = TRUE)),
+    avg_stress = replace_na(avg_stress, median(work_comp_sev_clean$psych_stress_index, na.rm = TRUE)),
+    occ_clean = replace_na(occ_clean, "Other"),
+    solar_system_clean = replace_na(solar_system_clean, "Unknown")
+  ) %>%
+  mutate(
+    # ---  GEAR CREDIT (Proven by -0.1488 Cor) ---
+    m1 = ifelse(avg_gear >= 4.0, 0.88, 1.00),
+    
+    # ---  STRESS SURCHARGE (Proven by 0.2441 Cor) ---
+    m2 = ifelse(avg_stress >= 7.5, 1.15, 1.00),
+    
+    # ---  OCC SUBLIMIT (Proven by Executive/Manager Tail Risk) ---
+    m3 = ifelse(occ_clean %in% c("Executive", "Manager"), 0.95, 1.00),
+    
+    # ---  TERRITORY (Proven by Helionis Cluster TVaR) ---
+    m4 = ifelse(solar_system_clean == "Helionis", 1.23, 1.00),
+    
+    # --- EXPERIENCE (Proven by Mid-Level U-Shape) ---
+    m5 = case_when(
+      experience_yrs > 2 & experience_yrs <= 10 ~ 0.90,  # Mid-level discount
+      experience_yrs <= 2 ~ 1.10,                        # Rookie surcharge
+      TRUE ~ 1.05                                        # Veteran surcharge
+    ),
+    
+    # Base Rate: $150 (Derived fromlambda_hat and expected loss)
+    Base_Rate = 150.00,
+    
+    # FINAL PREMIUM CALCULATION
+    Final_Premium = round(exposure * Base_Rate * m1 * m2 * m3 * m4 * m5, 2)
+  )
+
+# 3. Summary Table to verify it matches your Monte Carlo "out" values
+pricing_summary <- work_comp_pricing_final %>%
+  group_by(solar_system_clean) %>%
+  summarise(
+    Policies = n(),
+    Total_Exposure = sum(exposure, na.rm = TRUE),
+    Total_Premium = sum(Final_Premium, na.rm = TRUE),
+    Avg_Premium = mean(Final_Premium / exposure, na.rm = TRUE)
+  )
+
+print(pricing_summary)
+
+```
+
+
